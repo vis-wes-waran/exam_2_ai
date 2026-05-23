@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamAI — Intelligent Exam Preparation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:        #070b14;
+  --bg2:       #0b1020;
+  --bg3:       #101828;
+  --panel:     #131d2e;
+  --panel2:    #18243a;
+  --border:    #1f2f47;
+  --border2:   #2a3f5e;
+  --accent:    #3b82f6;
+  --accent-h:  #60a5fa;
+  --accent-g:  #10b981;
+  --accent-r:  #ef4444;
+  --accent-o:  #f59e0b;
+  --accent-p:  #8b5cf6;
+  --accent-c:  #06b6d4;
+  --gold:      #eab308;
+  --text:      #e2e8f4;
+  --text2:     #7a94b8;
+  --text3:     #334d6e;
+  --r:         8px;
+  --r2:        14px;
+  --r3:        20px;
+  --sidebar:   228px;
+  --topbar:    58px;
+  --font:      'DM Sans', sans-serif;
+  --font-serif:'DM Serif Display', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --shadow:    0 4px 24px rgba(0,0,0,.45);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,.6);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(59,130,246,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 90% 100%, rgba(139,92,246,.06) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 25% at 50% 50%, rgba(16,185,129,.025) 0%, transparent 55%);
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+#app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+/* SIDEBAR */
+#sidebar {
+  width: var(--sidebar); min-width: var(--sidebar);
+  background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh;
+  z-index: 100; transition: transform .3s cubic-bezier(.4,0,.2,1); overflow: hidden;
+}
+#main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.brand { padding: 0 16px; height: 58px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.brand-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-p));
+  display: grid; place-items: center; font-size: 17px;
+  box-shadow: 0 0 20px rgba(59,130,246,.3); flex-shrink: 0;
+}
+.brand-name {
+  font-family: var(--font-serif); font-size: 20px; letter-spacing: -.3px;
+  background: linear-gradient(90deg, var(--accent-h), var(--accent-p));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav { flex: 1; padding: 8px 10px; overflow-y: auto; overflow-x: hidden; }
+.nav-section { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; padding: 14px 8px 5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: var(--r); cursor: pointer; transition: all .15s;
+  color: var(--text2); font-size: 13px; font-weight: 500; margin-bottom: 1px; white-space: nowrap;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: rgba(59,130,246,.14); color: var(--accent-h); font-weight: 600; }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-p));
+  display: grid; place-items: center; font-size: 13px; font-weight: 700;
+  flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: .2s; user-select: none;
+}
+.avatar:hover { border-color: var(--accent); box-shadow: 0 0 12px rgba(59,130,246,.35); }
+.sf-info { flex: 1; min-width: 0; }
+.sf-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-level { font-size: 10px; color: var(--text2); }
+
+/* TOPBAR */
+#topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7,11,20,.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); padding: 0 22px; height: var(--topbar);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+#content { padding: 22px; flex: 1; }
+.tb-title { font-family: var(--font-serif); font-size: 17px; letter-spacing: -.2px; }
+.tb-right { display: flex; align-items: center; gap: 8px; }
+.tb-xp {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(234,179,8,.07); border: 1px solid rgba(234,179,8,.2);
+  padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+}
+.tb-coins {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.18);
+  padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+}
+.xp-bar-wrap { width: 64px; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.xp-bar { height: 100%; background: linear-gradient(90deg, var(--gold), #f59e0b); border-radius: 99px; transition: width .6s ease; }
+
+/* PAGES */
+.page { display: none; animation: pageIn .3s ease both; }
+.page.active { display: block; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS */
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--r2); padding: 20px; transition: border-color .2s, box-shadow .2s; }
+.card:hover { border-color: rgba(59,130,246,.2); }
+.card-title { font-weight: 600; font-size: 14px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 11px; margin-bottom: 20px; }
+.stat-card { background: var(--panel2); border: 1px solid var(--border); border-radius: var(--r2); padding: 16px; position: relative; overflow: hidden; transition: all .2s; }
+.stat-card::after { content: ''; position: absolute; bottom: -8px; right: -8px; width: 56px; height: 56px; border-radius: 50%; opacity: .1; }
+.stat-card:nth-child(1)::after { background: var(--accent); }
+.stat-card:nth-child(2)::after { background: var(--accent-g); }
+.stat-card:nth-child(3)::after { background: var(--gold); }
+.stat-card:nth-child(4)::after { background: var(--accent-p); }
+.stat-card:hover { transform: translateY(-2px); border-color: rgba(59,130,246,.25); }
+.stat-icon { font-size: 18px; margin-bottom: 8px; }
+.stat-value { font-family: var(--font-serif); font-size: 26px; line-height: 1; }
+.stat-label { font-size: 11px; color: var(--text2); margin-top: 4px; font-weight: 500; letter-spacing: .3px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: all .15s; font-family: var(--font);
+  letter-spacing: .1px; white-space: nowrap; flex-shrink: 0;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 12px rgba(59,130,246,.3); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-h); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(59,130,246,.45); }
+.btn-success { background: var(--accent-g); color: #fff; }
+.btn-success:hover:not(:disabled) { background: #0ea271; transform: translateY(-1px); }
+.btn-danger { background: var(--accent-r); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #dc2626; transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg3); color: var(--text); border-color: rgba(59,130,246,.35); }
+.btn-gold { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #000; font-weight: 700; }
+.btn-gold:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(234,179,8,.35); }
+.btn-purple { background: var(--accent-p); color: #fff; }
+.btn-sm { padding: 5px 13px; font-size: 12px; }
+.btn-lg { padding: 11px 26px; font-size: 15px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* FORMS */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 5px; letter-spacing: .4px; text-transform: uppercase; }
+.form-input {
+  width: 100%; padding: 10px 12px; border-radius: var(--r);
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); font-size: 13px; font-family: var(--font); transition: .15s; outline: none;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+.form-input::placeholder { color: var(--text3); }
+select.form-input { cursor: pointer; }
+textarea.form-input { resize: vertical; min-height: 80px; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
+.badge-accent { background: rgba(59,130,246,.12); color: var(--accent-h); border: 1px solid rgba(59,130,246,.25); }
+.badge-green { background: rgba(16,185,129,.1); color: var(--accent-g); border: 1px solid rgba(16,185,129,.25); }
+.badge-red { background: rgba(239,68,68,.1); color: var(--accent-r); border: 1px solid rgba(239,68,68,.22); }
+.badge-gold { background: rgba(234,179,8,.1); color: var(--gold); border: 1px solid rgba(234,179,8,.25); }
+.badge-purple { background: rgba(139,92,246,.1); color: var(--accent-p); border: 1px solid rgba(139,92,246,.22); }
+.badge-cyan { background: rgba(6,182,212,.1); color: var(--accent-c); border: 1px solid rgba(6,182,212,.22); }
+
+/* PROGRESS */
+.progress-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
+.pf-blue { background: linear-gradient(90deg, var(--accent), var(--accent-p)); }
+.pf-green { background: linear-gradient(90deg, var(--accent-g), #059669); }
+.pf-gold { background: linear-gradient(90deg, var(--gold), var(--accent-o)); }
+.pf-red { background: linear-gradient(90deg, var(--accent-r), #b91c1c); }
+
+/* MCQ */
+.mcq-options { display: flex; flex-direction: column; gap: 8px; }
+.mcq-option {
+  display: flex; align-items: center; gap: 11px; padding: 12px 14px;
+  border-radius: var(--r); border: 1px solid var(--border); background: var(--bg3);
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.mcq-option:hover:not(.disabled) { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.05); }
+.mcq-option.selected { border-color: var(--accent); background: rgba(59,130,246,.1); color: var(--accent-h); }
+.mcq-option.correct { border-color: var(--accent-g); background: rgba(16,185,129,.1); color: var(--accent-g); pointer-events: none; }
+.mcq-option.wrong { border-color: var(--accent-r); background: rgba(239,68,68,.08); color: var(--accent-r); pointer-events: none; }
+.mcq-option.disabled { pointer-events: none; }
+.mcq-opt-letter { width: 26px; height: 26px; border-radius: 7px; background: var(--border); display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; font-family: var(--font-mono); transition: .15s; }
+.mcq-option.selected .mcq-opt-letter { background: var(--accent); color: #fff; }
+.mcq-option.correct .mcq-opt-letter { background: var(--accent-g); color: #fff; }
+.mcq-option.wrong .mcq-opt-letter { background: var(--accent-r); color: #fff; }
+.mcq-opt-text { flex: 1; font-size: 13px; line-height: 1.5; }
+
+/* SECTION HEADERS */
+.section-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
+.section-title { font-family: var(--font-serif); font-size: 22px; letter-spacing: -.2px; }
+.section-sub { color: var(--text2); font-size: 12px; margin-top: 3px; }
+
+/* TABS */
+.tabs { display: flex; gap: 2px; background: var(--bg2); padding: 3px; border-radius: var(--r); margin-bottom: 18px; border: 1px solid var(--border); width: fit-content; }
+.tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text2); transition: .15s; }
+.tab.active { background: var(--panel); color: var(--accent-h); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 13px; }
+
+/* CHAPTER CARDS */
+.chapter-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r2);
+  padding: 15px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+}
+.chapter-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-p)); opacity: 0; transition: opacity .2s;
+}
+.chapter-card:hover::before, .chapter-card.active-ch::before { opacity: 1; }
+.chapter-card:hover { border-color: rgba(59,130,246,.3); transform: translateY(-2px); }
+.chapter-card.locked { opacity: .45; cursor: not-allowed; }
+.chapter-card.locked:hover { transform: none; border-color: var(--border); }
+.chapter-card.complete { border-color: rgba(16,185,129,.25); }
+.ch-name { font-weight: 600; font-size: 13px; margin-bottom: 8px; line-height: 1.4; }
+.ch-meta { display: flex; gap: 8px; font-size: 11px; color: var(--text2); flex-wrap: wrap; }
+
+/* TOASTS */
+#toasts { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.toast { background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 16px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); max-width: 300px; animation: toastIn .25s ease; pointer-events: auto; }
+.toast.success { border-color: rgba(16,185,129,.4); color: var(--accent-g); }
+.toast.error { border-color: rgba(239,68,68,.4); color: var(--accent-r); }
+.toast.info { border-color: rgba(59,130,246,.3); color: var(--accent-h); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(16px); } }
+
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(7,11,20,.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); place-items: center; }
+.modal-overlay.open { display: grid; }
+.modal { background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--r3); padding: 26px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; animation: modalIn .28s cubic-bezier(.34,1.56,.64,1); }
+@keyframes modalIn { from { opacity: 0; scale: .9; } to { opacity: 1; scale: 1; } }
+.modal-title { font-family: var(--font-serif); font-size: 22px; margin-bottom: 4px; }
+.modal-sub { color: var(--text2); font-size: 12px; margin-bottom: 20px; }
+
+/* EXPL BOX */
+.expl-box { border-radius: var(--r); padding: 13px 15px; margin-top: 11px; font-size: 13px; line-height: 1.7; background: rgba(59,130,246,.04); border: 1px solid rgba(59,130,246,.15); }
+.expl-box.correct { background: rgba(16,185,129,.05); border-color: rgba(16,185,129,.2); }
+.expl-box.wrong { background: rgba(239,68,68,.04); border-color: rgba(239,68,68,.2); }
+
+/* AI COACH CHAT */
+.coach-bubble { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 12px; animation: pageIn .3s ease; }
+.coach-bubble.user { flex-direction: row-reverse; }
+.coach-avatar { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: grid; place-items: center; font-size: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-p)); }
+.coach-bubble.user .coach-avatar { background: linear-gradient(135deg, var(--accent-g), var(--accent-c)); }
+.coach-msg { max-width: 82%; padding: 10px 14px; border-radius: 14px 14px 14px 4px; font-size: 13px; line-height: 1.65; background: var(--bg3); border: 1px solid var(--border); }
+.coach-bubble.user .coach-msg { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.22); color: var(--accent-h); border-radius: 14px 14px 4px 14px; }
+
+/* QUICK TEACH */
+.quick-teach { border-radius: var(--r2); overflow: hidden; border: 1px solid rgba(59,130,246,.22); margin-top: 12px; background: var(--panel2); animation: pageIn .35s ease; }
+.qt-top { padding: 11px 15px; display: flex; align-items: center; gap: 10px; background: rgba(59,130,246,.07); border-bottom: 1px solid rgba(59,130,246,.15); }
+.qt-body { padding: 14px 15px; }
+.qt-typing { display: flex; gap: 4px; align-items: center; }
+.qt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-p); animation: qtBounce .9s ease infinite; }
+.qt-dot:nth-child(2) { animation-delay: .15s; }
+.qt-dot:nth-child(3) { animation-delay: .3s; }
+@keyframes qtBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+/* EXAM OVERLAY */
+#exam-overlay { display: none; position: fixed; inset: 0; z-index: 400; background: var(--bg); flex-direction: column; }
+#exam-overlay.open { display: flex; }
+.exam-header { padding: 0 24px; height: 60px; background: rgba(7,11,20,.96); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.exam-label { font-family: var(--font-serif); font-size: 16px; }
+.exam-timer { display: flex; align-items: center; gap: 7px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; padding: 5px 14px; }
+.exam-timer.warn { border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.06); color: var(--accent-o); }
+.exam-timer.danger { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.08); color: var(--accent-r); animation: timerPulse .8s ease infinite; }
+.timer-val { font-family: var(--font-mono); font-weight: 600; font-size: 17px; }
+@keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.exam-progress-track { height: 3px; background: var(--border); flex-shrink: 0; }
+.exam-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-p)); transition: width .4s ease; }
+.exam-body { flex: 1; overflow-y: auto; padding: 24px; }
+.exam-body::-webkit-scrollbar { width: 4px; }
+.exam-body::-webkit-scrollbar-thumb { background: var(--border2); }
+.exam-content { max-width: 740px; margin: 0 auto; }
+.exam-q-panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; }
+.exam-q-body { padding: 20px 22px; }
+.exam-q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.exam-q-num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .5px; }
+.exam-q-text { font-size: 15px; font-weight: 500; line-height: 1.7; margin-bottom: 18px; }
+.exam-q-opts { display: flex; flex-direction: column; gap: 8px; }
+.exam-option { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg3); cursor: pointer; transition: all .13s; user-select: none; }
+.exam-option:hover:not(.disabled) { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); }
+.exam-option.selected { border-color: var(--accent); background: rgba(59,130,246,.12); }
+.exam-option.correct { border-color: var(--accent-g); background: rgba(16,185,129,.1); }
+.exam-option.wrong { border-color: var(--accent-r); background: rgba(239,68,68,.08); }
+.exam-option.disabled { cursor: default; pointer-events: none; }
+.exam-opt-key { width: 27px; height: 27px; border-radius: 7px; background: var(--border); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 700; flex-shrink: 0; transition: .13s; }
+.exam-option.selected .exam-opt-key { background: var(--accent); color: #fff; }
+.exam-option.correct .exam-opt-key { background: var(--accent-g); color: #fff; }
+.exam-option.wrong .exam-opt-key { background: var(--accent-r); color: #fff; }
+.exam-opt-text { font-size: 13px; line-height: 1.5; flex: 1; }
+.exam-feedback { border-top: 1px solid var(--border); padding: 15px 22px; }
+.exam-feedback-row { display: flex; align-items: flex-start; gap: 10px; }
+.exam-feedback-icon { font-size: 16px; margin-top: 2px; flex-shrink: 0; }
+.exam-feedback-text { font-size: 13px; line-height: 1.65; flex: 1; }
+.exam-q-dots { display: flex; gap: 5px; flex-wrap: wrap; max-width: 360px; }
+.exam-dot { width: 26px; height: 26px; border-radius: 7px; background: var(--border); cursor: pointer; display: grid; place-items: center; font-size: 10px; font-weight: 700; font-family: var(--font-mono); color: var(--text3); transition: .13s; border: 1px solid transparent; }
+.exam-dot.answered { background: rgba(59,130,246,.15); color: var(--accent-h); border-color: rgba(59,130,246,.25); }
+.exam-dot.current { background: var(--accent); color: #fff; border-color: var(--accent); }
+.exam-dot.correct-dot { background: rgba(16,185,129,.15); color: var(--accent-g); border-color: rgba(16,185,129,.28); }
+.exam-dot.wrong-dot { background: rgba(239,68,68,.12); color: var(--accent-r); border-color: rgba(239,68,68,.28); }
+
+/* SPINNERS */
+.spinner { width: 30px; height: 30px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .65s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-center { display: flex; flex-direction: column; align-items: center; gap: 11px; padding: 44px; color: var(--text2); font-size: 13px; }
+
+/* MISC */
+.ach-card { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 13px; }
+.ach-icon { font-size: 20px; }
+.ach-name { font-size: 12px; font-weight: 600; }
+.ach-desc { font-size: 11px; color: var(--text2); }
+.ach-xp { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--gold); }
+.interview-type-card { background: var(--bg3); border: 1.5px solid var(--border); border-radius: var(--r2); padding: 16px; cursor: pointer; transition: all .15s; }
+.interview-type-card:hover, .interview-type-card.selected { border-color: var(--accent); background: rgba(59,130,246,.07); }
+.it-icon { font-size: 26px; margin-bottom: 7px; }
+.it-label { font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+.it-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--r); background: var(--bg3); border: 1px solid var(--border); margin-bottom: 6px; transition: .15s; }
+.lb-row:hover { border-color: rgba(59,130,246,.22); }
+.lb-row.me { border-color: rgba(59,130,246,.38); background: rgba(59,130,246,.06); }
+.lb-rank { font-family: var(--font-mono); font-weight: 700; font-size: 14px; width: 26px; text-align: center; flex-shrink: 0; }
+.lb-name { flex: 1; font-weight: 600; font-size: 13px; }
+.lb-xp { font-size: 12px; color: var(--gold); font-weight: 700; }
+.mood-emojis { display: flex; gap: 9px; justify-content: center; }
+.mood-btn { font-size: 24px; cursor: pointer; padding: 6px 8px; border-radius: var(--r); transition: .15s; border: 1.5px solid transparent; background: var(--bg3); }
+.mood-btn:hover, .mood-btn.selected { border-color: var(--accent); background: rgba(59,130,246,.1); transform: scale(1.15); }
+
+/* AUTH */
+#auth-container { display: none; position: fixed; inset: 0; z-index: 200; background: var(--bg); place-items: center; }
+#auth-container.active { display: grid; }
+.auth-box { background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--r3); padding: 32px 36px; width: 400px; max-width: 94vw; animation: modalIn .3s ease; }
+.auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.auth-title { font-family: var(--font-serif); font-size: 24px; margin-bottom: 5px; }
+.auth-sub { color: var(--text2); font-size: 13px; margin-bottom: 22px; }
+.auth-switch { text-align: center; font-size: 12px; color: var(--text2); margin-top: 14px; }
+.auth-switch a { color: var(--accent-h); cursor: pointer; font-weight: 600; }
+.auth-switch a:hover { text-decoration: underline; }
+#setup-container { display: none; position: fixed; inset: 0; z-index: 150; background: var(--bg); place-items: center; overflow-y: auto; padding: 24px; }
+#setup-container.active { display: grid; }
+.setup-box { background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--r3); padding: 32px; max-width: 500px; width: 100%; animation: modalIn .3s ease; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* UTILITY */
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mt-24{margin-top:24px}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}
+.flex{display:flex}.flex-center{display:flex;align-items:center}
+.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.justify-between{justify-content:space-between}
+.text-accent{color:var(--accent-h)}.text-green{color:var(--accent-g)}.text-red{color:var(--accent-r)}.text-gold{color:var(--gold)}
+.text-muted{color:var(--text2)}.text-xs{font-size:11px}.text-sm{font-size:12px}.text-lg{font-size:17px}.text-xl{font-size:21px}
+.fw-700{font-weight:700}.fw-600{font-weight:600}
+.font-serif{font-family:var(--font-serif)}.font-mono{font-family:var(--font-mono)}
+.w-full{width:100%}.hidden{display:none!important}.text-center{text-align:center}.pointer{cursor:pointer}
+
+/* RESPONSIVE */
+#sidebar-toggle { display: none; background: none; border: none; color: var(--text); font-size: 19px; cursor: pointer; padding: 3px; }
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+  #sidebar-toggle { display: block; }
+  #sidebar-backdrop { display: none; position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
+  #sidebar-backdrop.open { display: block; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+  .exam-header { padding: 0 14px; }
+  .exam-body { padding: 14px; }
+  .exam-q-dots { max-width: 240px; }
+  #content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-container" class="active">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="brand-icon">🧠</div><span class="brand-name">ExamAI</span></div>
+    <div id="login-form">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Continue your AI-powered exam prep</div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="login-email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="login-pass" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="btn btn-primary w-full" id="login-btn">Sign In →</button>
+      <div class="auth-switch">Don't have an account? <a id="goto-register">Register</a></div>
+    </div>
+    <div id="register-form" class="hidden">
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Start your AI-powered exam journey</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" id="reg-name" placeholder="Your name" autocomplete="name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="reg-email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="reg-pass" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+      <button class="btn btn-primary w-full" id="register-btn">Create Account →</button>
+      <div class="auth-switch">Already have an account? <a id="goto-login">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="setup-container">
+  <div class="setup-box">
+    <div class="auth-logo mb-24"><div class="brand-icon">🧠</div><span class="brand-name">ExamAI Setup</span></div>
+    <div class="auth-title">Configure your exam</div>
+    <div class="auth-sub mb-20">Tell us what you're preparing for</div>
+    <div class="form-group"><label class="form-label">Exam / Goal *</label><input type="text" class="form-input" id="setup-exam" placeholder="e.g. UPSC, JEE, NEET, GATE, JLPT N5…"/></div>
+    <div class="form-group"><label class="form-label">Your Goal (optional)</label><input type="text" class="form-input" id="setup-goal" placeholder="e.g. Crack UPSC 2025, Score 95%…"/></div>
+    <button class="btn btn-primary w-full btn-lg" id="setup-btn">Generate My Curriculum →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <div id="sidebar-backdrop"></div>
+  <nav id="sidebar">
+    <div class="brand"><div class="brand-icon">🧠</div><span class="brand-name">ExamAI</span></div>
+    <div class="nav">
+      <div class="nav-section">Study</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span>Dashboard</div>
+      <div class="nav-item" data-page="daily-test"><span class="nav-icon">📝</span>Daily Test</div>
+      <div class="nav-item" data-page="chapters"><span class="nav-icon">📚</span>Chapters</div>
+      <div class="nav-item" data-page="weak-session"><span class="nav-icon">⚡</span>Weak Training</div>
+      <div class="nav-item" data-page="dynamic"><span class="nav-icon">🌀</span>Dynamic Mode</div>
+      <div class="nav-section">Practice</div>
+      <div class="nav-item" data-page="interview"><span class="nav-icon">🎤</span>Interview Mode</div>
+      <div class="nav-item" data-page="challenge"><span class="nav-icon">🌟</span>Daily Challenge</div>
+      <div class="nav-item" data-page="global"><span class="nav-icon">🌍</span>Global Tests</div>
+      <div class="nav-section">Tools</div>
+      <div class="nav-item" data-page="coach"><span class="nav-icon">🤖</span>AI Coach</div>
+      <div class="nav-item" data-page="bookmarks"><span class="nav-icon">📌</span>Bookmarks</div>
+      <div class="nav-item" data-page="analytics"><span class="nav-icon">📈</span>Analytics</div>
+      <div class="nav-item" data-page="leaderboard"><span class="nav-icon">🏆</span>Leaderboard</div>
+      <div class="nav-item" data-page="profile"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar" id="sb-avatar"></div>
+      <div class="sf-info"><div class="sf-name" id="sb-name">—</div><div class="sf-level" id="sb-level">Level 1</div></div>
+      <button class="btn btn-ghost btn-sm" id="logout-btn" title="Logout" style="padding:5px 9px">⏻</button>
+    </div>
+  </nav>
+
+  <div id="main">
+    <div id="topbar">
+      <div class="flex flex-center gap-12">
+        <button id="sidebar-toggle">☰</button>
+        <div class="tb-title" id="tb-title">Dashboard</div>
+      </div>
+      <div class="tb-right">
+        <div class="tb-xp">⚡ <span id="tb-xp-val">0</span> XP
+          <div class="xp-bar-wrap"><div class="xp-bar" id="tb-xp-bar" style="width:0%"></div></div>
+        </div>
+        <div class="tb-coins">🪙 <span id="tb-coins">0</span></div>
+      </div>
+    </div>
+
+    <div id="content">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="section-header">
+          <div><div class="section-title" id="dash-greeting">Good morning! 👋</div><div class="section-sub" id="dash-sub">Here's your study overview</div></div>
+          <div class="flex gap-8" style="flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" data-goto="chapters">📚 Chapter Exam</button>
+            <button class="btn btn-primary" data-goto="daily-test">Start Daily Test →</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value" id="ds-att">—</div><div class="stat-label">Total Attempted</div></div>
+          <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="ds-acc">—</div><div class="stat-label">Overall Accuracy</div></div>
+          <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="ds-streak">—</div><div class="stat-label">Day Streak</div></div>
+          <div class="stat-card"><div class="stat-icon">🪙</div><div class="stat-value" id="ds-coins">—</div><div class="stat-label">Coins Earned</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-title mb-12">📅 Daily Insight</div><div id="dash-insight" class="text-muted text-sm" style="line-height:1.7">Loading your daily insight…</div></div>
+          <div class="card"><div class="card-title mb-12">🏆 Achievements</div><div id="dash-achs" style="display:flex;flex-direction:column;gap:8px"><div class="text-muted text-sm">Loading…</div></div></div>
+        </div>
+        <div class="card mt-16"><div class="card-title mb-16">📈 Recent Performance</div><div id="dash-daily-hist" style="display:flex;flex-direction:column;gap:6px"><div class="text-muted text-sm">No test history yet.</div></div></div>
+      </div>
+
+      <!-- DAILY TEST -->
+      <div class="page" id="page-daily-test">
+        <div id="dt-loading" class="loading-center"><div class="spinner"></div><div>Loading daily test…</div></div>
+        <div id="dt-content" class="hidden">
+          <div class="section-header">
+            <div><div class="section-title">📝 Daily Test</div><div class="section-sub" id="dt-meta">Today's questions</div></div>
+            <div class="flex gap-8 flex-center">
+              <div class="badge badge-accent" id="dt-progress-badge">0 / 0</div>
+              <button class="btn btn-primary" id="dt-submit-btn">Submit Test</button>
+            </div>
+          </div>
+          <div id="dt-questions"></div>
+        </div>
+        <div id="dt-results" class="hidden">
+          <div class="card text-center" style="padding:32px">
+            <div style="font-size:46px;margin-bottom:11px" id="dt-res-emoji">🎯</div>
+            <div class="font-serif fw-700 text-xl mb-8" id="dt-res-score"></div>
+            <div class="text-muted text-sm mb-16" id="dt-res-msg"></div>
+            <div class="flex flex-center gap-8" style="justify-content:center">
+              <button class="btn btn-ghost" data-goto="dashboard">← Dashboard</button>
+              <button class="btn btn-primary" id="dt-new-btn">New Test</button>
+            </div>
+          </div>
+          <div id="dt-res-detail" class="mt-16"></div>
+        </div>
+      </div>
+
+      <!-- CHAPTERS -->
+      <div class="page" id="page-chapters">
+        <div class="section-header">
+          <div><div class="section-title">📚 Chapters</div><div class="section-sub">Your exam curriculum</div></div>
+          <button class="btn btn-ghost btn-sm" id="refresh-chapters-btn">↻ Refresh</button>
+        </div>
+        <div id="chapters-grid" class="grid-auto"><div class="loading-center"><div class="spinner"></div></div></div>
+        <div id="sub-panel" class="hidden mt-24">
+          <div class="section-header">
+            <div><div class="section-title" id="sub-chapter-title">Sub-chapters</div><div class="section-sub">Practice each sub-topic or take an Exam</div></div>
+            <button class="btn btn-ghost btn-sm" id="close-sub-btn">✕ Close</button>
+          </div>
+          <div class="card mb-16" style="border-color:rgba(234,179,8,.22);background:linear-gradient(135deg,rgba(234,179,8,.03),rgba(139,92,246,.03))">
+            <div class="flex flex-center justify-between" style="flex-wrap:wrap;gap:10px">
+              <div><div class="fw-700" style="font-size:14px;margin-bottom:3px">🎓 Chapter Exam Mode</div><div class="text-muted text-sm" id="exam-mode-sub">Full timed exam simulation for this chapter</div></div>
+              <button class="btn btn-gold" id="start-chapter-exam-btn">Start Exam 📝</button>
+            </div>
+          </div>
+          <div id="sub-chapters-list" class="grid-auto"></div>
+          <div id="practice-panel" class="hidden mt-16"></div>
+        </div>
+      </div>
+
+      <!-- WEAK SESSION -->
+      <div class="page" id="page-weak-session">
+        <div class="section-header"><div><div class="section-title">⚡ Weak Training</div><div class="section-sub">Practice your problem areas</div></div></div>
+        <div id="ws-start" class="card text-center" style="padding:40px">
+          <div style="font-size:52px;margin-bottom:13px">⚡</div>
+          <div class="font-serif fw-700 text-lg mb-8">Target Your Weaknesses</div>
+          <div class="text-muted text-sm mb-20">AI selects questions you've previously got wrong so you can master them.</div>
+          <button class="btn btn-primary btn-lg" id="start-weak-btn">Start Weak Training</button>
+        </div>
+        <div id="ws-loading" class="loading-center hidden"><div class="spinner"></div><div>Finding your weak areas…</div></div>
+        <div id="ws-content" class="hidden">
+          <div class="section-header"><div class="badge badge-red" id="ws-count">0 questions</div><button class="btn btn-danger" id="ws-submit-btn">Submit</button></div>
+          <div id="ws-questions"></div>
+        </div>
+        <div id="ws-results" class="hidden card text-center" style="padding:34px">
+          <div style="font-size:46px;margin-bottom:12px">💪</div>
+          <div class="font-serif fw-700 text-xl mb-8" id="ws-res-score"></div>
+          <div class="text-muted text-sm mb-16">Keep practicing — consistency beats everything!</div>
+          <button class="btn btn-primary" id="ws-retry-btn">Try Again</button>
+        </div>
+      </div>
+
+      <!-- DYNAMIC MODE — with chapter selector -->
+      <div class="page" id="page-dynamic">
+        <div class="section-header"><div><div class="section-title">🌀 Dynamic Mode</div><div class="section-sub">Endless AI-generated questions</div></div></div>
+        <div id="dyn-start" class="card" style="padding:40px;max-width:560px">
+          <div class="text-center mb-20">
+            <div style="font-size:52px;margin-bottom:13px">🌀</div>
+            <div class="font-serif fw-700 text-lg mb-8">Endless Practice</div>
+            <div class="text-muted text-sm">AI generates fresh, unique questions on the fly. Optionally pick a chapter to focus on.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Focus Chapter (optional)</label>
+            <select class="form-input" id="dyn-chapter-select">
+              <option value="">All Chapters (random)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty</label>
+            <select class="form-input" id="dyn-difficulty-select">
+              <option value="">Mixed</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-lg w-full" id="start-dynamic-btn">Start Dynamic Session</button>
+        </div>
+        <div id="dyn-session" class="hidden">
+          <div class="flex flex-center justify-between mb-16" style="flex-wrap:wrap;gap:10px">
+            <div>
+              <div class="font-serif fw-700 text-lg">🌀 Dynamic Mode</div>
+              <div class="text-muted text-xs" id="dyn-chapter-label"></div>
+            </div>
+            <div class="flex gap-8 flex-center">
+              <div class="badge badge-accent" id="dyn-score-badge">0/0</div>
+              <button class="btn btn-danger btn-sm" id="stop-dynamic-btn">Stop Session</button>
+            </div>
+          </div>
+          <div id="dyn-q-card" class="card"><div class="loading-center"><div class="spinner"></div><div>Generating question…</div></div></div>
+        </div>
+        <div id="dyn-results" class="hidden card text-center" style="padding:34px">
+          <div style="font-size:46px;margin-bottom:12px">🎯</div>
+          <div class="font-serif fw-700 text-xl mb-8" id="dyn-res-score"></div>
+          <div class="text-muted text-sm mb-16" id="dyn-res-msg"></div>
+          <button class="btn btn-primary" id="dyn-new-btn">New Session</button>
+        </div>
+      </div>
+
+      <!-- INTERVIEW -->
+      <div class="page" id="page-interview">
+        <div class="section-header"><div><div class="section-title">🎤 Interview Mode</div><div class="section-sub">AI-powered interview simulation</div></div></div>
+        <div id="iv-setup">
+          <div class="card mb-16"><div class="card-title mb-12">Select Interview Style</div><div id="iv-types" class="grid-3"></div></div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Chapter / Topic (optional)</label><input type="text" class="form-input" id="iv-chapter" placeholder="Leave blank for full exam"/></div>
+            <div class="form-group"><label class="form-label">Number of Questions</label><select class="form-input" id="iv-qcount"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option></select></div>
+          </div>
+          <button class="btn btn-primary btn-lg" id="iv-start-btn">Start Interview 🎤</button>
+        </div>
+        <div id="iv-session" class="hidden">
+          <div class="flex flex-center justify-between mb-16" style="flex-wrap:wrap;gap:10px">
+            <div class="font-serif fw-700 text-lg" id="iv-title">Interview</div>
+            <div class="flex gap-8 flex-center"><div class="badge badge-accent" id="iv-progress">Q 1 / 10</div><button class="btn btn-ghost btn-sm" id="iv-end-btn">End Early</button></div>
+          </div>
+          <div class="card mb-14">
+            <div class="text-muted text-xs mb-8" id="iv-q-num">Question 1</div>
+            <div class="fw-600 mb-16" style="font-size:15px;line-height:1.65" id="iv-question"></div>
+            <div id="iv-mcq-options" class="mcq-options hidden"></div>
+            <div id="iv-open-wrap" class="hidden"><textarea class="form-input" id="iv-open-ans" rows="4" placeholder="Type your answer here…"></textarea></div>
+          </div>
+          <button class="btn btn-primary w-full" id="iv-submit-btn">Submit Answer →</button>
+          <div id="iv-feedback-box" class="hidden expl-box mt-14"></div>
+          <div id="iv-next-wrap" class="hidden mt-10"><button class="btn btn-ghost" id="iv-next-btn">Next Question →</button></div>
+        </div>
+        <div id="iv-results" class="hidden card text-center" style="padding:34px">
+          <div style="font-size:46px;margin-bottom:12px" id="iv-res-emoji">🏅</div>
+          <div class="font-serif fw-700 text-xl mb-8" id="iv-res-score"></div>
+          <div class="text-muted text-sm mb-16" id="iv-res-summary" style="line-height:1.7;max-width:440px;margin:0 auto 16px"></div>
+          <button class="btn btn-primary" id="iv-new-btn">New Interview</button>
+        </div>
+      </div>
+
+      <!-- DAILY CHALLENGE -->
+      <div class="page" id="page-challenge">
+        <div class="section-header"><div><div class="section-title">🌟 Daily Challenge</div><div class="section-sub">One hard question per day</div></div></div>
+        <div id="dc-loading" class="loading-center"><div class="spinner"></div></div>
+        <div id="dc-content" class="hidden card" style="max-width:620px">
+          <div class="flex flex-center justify-between mb-14" style="flex-wrap:wrap;gap:8px">
+            <div><div class="fw-700 text-lg" id="dc-chapter"></div><div class="text-muted text-xs">Daily Challenge</div></div>
+            <div class="badge badge-gold">🌟 <span id="dc-xp">75</span> XP</div>
+          </div>
+          <div class="fw-600 mb-16" style="font-size:14px;line-height:1.65" id="dc-question"></div>
+          <div class="mcq-options" id="dc-options"></div>
+          <button class="btn btn-primary mt-14 w-full" id="dc-submit-btn">Submit Answer</button>
+          <div id="dc-result" class="hidden expl-box mt-14"></div>
+        </div>
+      </div>
+
+      <!-- GLOBAL TESTS -->
+      <div class="page" id="page-global">
+        <div class="section-header">
+          <div><div class="section-title">🌍 Global Tests</div><div class="section-sub">Compete with everyone</div></div>
+          <button class="btn btn-ghost btn-sm" id="refresh-global-btn">↻ Refresh</button>
+        </div>
+        <div id="global-loading" class="loading-center"><div class="spinner"></div></div>
+        <div id="global-list" class="hidden"></div>
+      </div>
+
+      <!-- AI COACH -->
+      <div class="page" id="page-coach">
+        <div class="section-header"><div><div class="section-title">🤖 AI Coach</div><div class="section-sub">Personalized guidance powered by AI</div></div></div>
+        <div class="card" style="max-width:700px">
+          <div style="display:flex;flex-direction:column;gap:0;max-height:420px;overflow-y:auto;padding-right:4px" id="coach-chat"></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="text" class="form-input" id="coach-input" placeholder="Ask anything about your exam…"/>
+            <button class="btn btn-primary" id="coach-send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKMARKS -->
+      <div class="page" id="page-bookmarks">
+        <div class="section-header">
+          <div><div class="section-title">📌 Bookmarks</div><div class="section-sub">Your saved questions</div></div>
+          <button class="btn btn-ghost btn-sm" id="refresh-bookmarks-btn">↻ Refresh</button>
+        </div>
+        <div id="bookmarks-loading" class="loading-center"><div class="spinner"></div></div>
+        <div id="bookmarks-list" class="hidden" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="page" id="page-analytics">
+        <div class="section-header"><div><div class="section-title">📈 Analytics</div><div class="section-sub">Your performance breakdown</div></div></div>
+        <div id="analytics-loading" class="loading-center"><div class="spinner"></div></div>
+        <div id="analytics-content" class="hidden">
+          <div class="stats-grid mb-20" id="an-stats"></div>
+          <div class="grid-2 mb-13">
+            <div class="card"><div class="card-title mb-12">Chapter Performance</div><div id="an-chapters" style="display:flex;flex-direction:column;gap:10px"></div></div>
+            <div class="card"><div class="card-title mb-12">Difficulty Breakdown</div><div id="an-diff" style="display:flex;flex-direction:column;gap:10px"></div></div>
+          </div>
+          <div class="card"><div class="card-title mb-12">Top Weak Questions</div><div id="an-weak" style="display:flex;flex-direction:column;gap:10px"></div></div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div class="page" id="page-leaderboard">
+        <div class="section-header"><div><div class="section-title">🏆 Leaderboard</div><div class="section-sub">Top learners by XP</div></div></div>
+        <div id="lb-loading" class="loading-center"><div class="spinner"></div></div>
+        <div id="lb-content" class="hidden" style="max-width:620px"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="page" id="page-profile">
+        <div class="section-header"><div><div class="section-title">👤 Profile</div></div></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="flex flex-center gap-14 mb-20">
+              <div class="avatar" id="prof-avatar" style="width:54px;height:54px;font-size:20px"></div>
+              <div><div class="font-serif fw-700 text-lg" id="prof-name"></div><div class="text-muted text-sm" id="prof-email"></div><div class="badge badge-gold mt-4" id="prof-level">Level 1</div></div>
+            </div>
+            <div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="prof-name-input"/></div>
+            <div class="form-group"><label class="form-label">Bio</label><textarea class="form-input" id="prof-bio" rows="2" placeholder="Tell us about yourself…"></textarea></div>
+            <div class="form-group"><label class="form-label">Avatar Color</label><input type="color" class="form-input" id="prof-color" style="height:42px;padding:4px"/></div>
+            <div class="form-group flex flex-center gap-8"><input type="checkbox" id="prof-reminders"/><label for="prof-reminders" class="text-sm pointer">Receive email reminders</label></div>
+            <button class="btn btn-primary w-full" id="save-profile-btn">Save Profile</button>
+          </div>
+          <div class="card">
+            <div class="card-title mb-14">📊 Stats</div>
+            <div id="prof-stats" style="display:flex;flex-direction:column;gap:10px"></div>
+            <div class="divider"></div>
+            <div class="card-title mb-10">🏅 Achievements</div>
+            <div id="prof-achs" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-title mb-10">😊 Mood Check-in</div>
+          <div class="text-sm text-muted mb-10">How are you feeling today?</div>
+          <div class="mood-emojis mb-10">
+            <div class="mood-btn" data-mood="1">😔</div><div class="mood-btn" data-mood="2">😐</div>
+            <div class="mood-btn" data-mood="3">🙂</div><div class="mood-btn" data-mood="4">😊</div>
+            <div class="mood-btn" data-mood="5">🤩</div>
+          </div>
+          <div class="text-sm text-muted mb-8">Energy level:</div>
+          <div class="mood-emojis mb-14">
+            <div class="mood-btn" data-energy="1">🪫</div><div class="mood-btn" data-energy="2">😴</div>
+            <div class="mood-btn" data-energy="3">⚡</div><div class="mood-btn" data-energy="4">🔋</div>
+            <div class="mood-btn" data-energy="5">🚀</div>
+          </div>
+          <input type="text" class="form-input mb-10" id="mood-note" placeholder="Optional note…"/>
+          <button class="btn btn-ghost" id="submit-mood-btn">Log Mood</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM OVERLAY -->
+<div id="exam-overlay">
+  <div class="exam-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="brand-icon" style="width:28px;height:28px;font-size:13px">🎓</div>
+      <div><div class="exam-label" id="exam-chapter-label">Chapter Exam</div><div class="text-xs text-muted" id="exam-sub-label">Timed · Full Simulation</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="exam-timer" id="exam-timer-box"><span>⏱</span><span class="timer-val" id="exam-timer">30:00</span></div>
+      <div class="badge badge-accent" id="exam-score-badge">0 / 0</div>
+      <button class="btn btn-ghost btn-sm" id="end-exam-btn">End Exam</button>
+    </div>
+  </div>
+  <div class="exam-progress-track"><div class="exam-progress-fill" id="exam-prog-bar" style="width:0%"></div></div>
+  <div class="exam-body">
+    <div class="exam-content">
+      <div id="exam-q-container"></div>
+      <div class="card mt-16" style="padding:14px">
+        <div class="text-xs text-muted mb-8 font-mono" style="letter-spacing:.5px">QUESTION MAP</div>
+        <div class="exam-q-dots" id="exam-q-dots"></div>
+        <div class="flex flex-center justify-between mt-14">
+          <button class="btn btn-ghost btn-sm" id="exam-prev-btn">← Prev</button>
+          <button class="btn btn-primary btn-sm" id="exam-next-btn">Next →</button>
+        </div>
+      </div>
+      <div class="mt-14 text-center"><button class="btn btn-gold btn-lg" id="submit-exam-btn">Submit Exam 🎓</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM RESULT MODAL -->
+<div class="modal-overlay" id="exam-result-modal">
+  <div class="modal text-center">
+    <div style="font-size:52px;margin-bottom:10px" id="erm-emoji">🎓</div>
+    <div class="modal-title" id="erm-title">Exam Complete!</div>
+    <div class="modal-sub" id="erm-sub">Chapter</div>
+    <div style="display:flex;justify-content:center;margin-bottom:18px">
+      <div style="position:relative;width:120px;height:120px">
+        <svg viewBox="0 0 120 120" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="6"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="326.7" id="erm-ring" stroke-dashoffset="326.7" style="transition:stroke-dashoffset 1.2s ease"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column">
+          <div style="font-family:var(--font-serif);font-size:30px;font-weight:700;line-height:1" id="erm-pct">0%</div>
+          <div style="font-size:10px;color:var(--text2);letter-spacing:.5px">SCORE</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px">
+      <div class="stat-card" style="padding:11px;text-align:center"><div class="stat-value" style="font-size:20px" id="erm-correct">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-card" style="padding:11px;text-align:center"><div class="stat-value" style="font-size:20px;color:var(--accent-r)" id="erm-wrong">0</div><div class="stat-label">Wrong</div></div>
+      <div class="stat-card" style="padding:11px;text-align:center"><div class="stat-value" style="font-size:20px;color:var(--text2)" id="erm-skip">0</div><div class="stat-label">Skipped</div></div>
+    </div>
+    <div class="expl-box mb-16" id="erm-feedback" style="text-align:left"></div>
+    <div class="flex gap-8" style="justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-ghost" id="erm-close-btn">← Chapters</button>
+      <button class="btn btn-primary" id="erm-review-btn">Review Answers</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACHIEVEMENT MODAL -->
+<div class="modal-overlay" id="ach-modal">
+  <div class="modal text-center">
+    <div style="font-size:52px;margin-bottom:10px" id="ach-modal-icon">🏆</div>
+    <div class="modal-title">Achievement Unlocked!</div>
+    <div class="fw-700 text-lg text-accent mb-8" id="ach-modal-name"></div>
+    <div class="text-muted text-sm mb-14" id="ach-modal-desc"></div>
+    <div class="badge badge-gold mb-18" id="ach-modal-xp"></div>
+    <button class="btn btn-primary" id="ach-ok-btn">Awesome! 🎉</button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* ═══ CONFIG ═══ */
+const API = 'http://127.0.0.1:8000';
+let token = localStorage.getItem('examai_token') || '';
+let currentUser = null;
+let currentPage = 'dashboard';
+
+/* ═══ STATE ═══ */
+const state = {
+  dailyTest: null, dailyAnswers: {},
+  weakSession: null, weakAnswers: {},
+  dynSession: null, dynAttemptId: null, dynAnswered: false,
+  ivSession: null, ivQaId: null, ivType: 'conceptual',
+  ivNextQ: null, ivNextQaId: null, ivMCQAnswer: null,
+  selectedMood: 0, selectedEnergy: 0,
+  challenge: null, challengeAnswer: null,
+  subPracticeQs: [], subPracticeAnswers: {},
+  examQuestions: [], examAnswers: {}, examCurrentQ: 0,
+  examTimer: null, examTimeLeft: 0, examChapterName: '',
+  examReviewMode: false, examSubmitted: false,
+  availableChapters: [],     // ← NEW: for dynamic chapter list
+};
+
+/* ═══ API HELPER ═══ */
+async function api(method, path, body = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  let res;
+  try { res = await fetch(API + path, opts); }
+  catch (e) { throw new Error('Network error — is the server running?'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || data.message || `HTTP ${res.status}`);
+  return data;
+}
+
+/* ═══ UTILS ═══ */
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, type = 'info', duration = 3500) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`; el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut .25s ease forwards'; setTimeout(() => el.remove(), 250); }, duration);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+const show = id => document.getElementById(id)?.classList.remove('hidden');
+const hide = id => document.getElementById(id)?.classList.add('hidden');
+const el = id => document.getElementById(id);
+
+/* ═══ ACHIEVEMENTS ═══ */
+function showAchievementUnlock(ach) {
+  el('ach-modal-icon').textContent = ach.icon;
+  el('ach-modal-name').textContent = ach.name;
+  el('ach-modal-desc').textContent = ach.desc;
+  el('ach-modal-xp').textContent = `+${ach.xp} XP`;
+  openModal('ach-modal');
+}
+function handleNewAchievements(achs) {
+  if (achs?.length) achs.forEach((a, i) => setTimeout(() => showAchievementUnlock(a), i * 600));
+}
+
+/* ═══ AI COACH QUICK TEACH ═══
+   Shows a typewriter explanation for wrong answers.
+   Also adds "Ask Coach More" and "Go to Coach" buttons.
+*/
+async function coachTeachWrongAnswer(question, wrongOption, correctOption, explanation, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = `
+    <div class="quick-teach">
+      <div class="qt-top">
+        <div style="font-size:20px">🤖</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--accent-h)">AI Coach is teaching you</div>
+          <div style="font-size:10px;color:var(--text2)">Let me explain why that wasn't right…</div>
+        </div>
+      </div>
+      <div class="qt-body">
+        <div class="qt-typing" id="${containerId}-typing">
+          <div class="qt-dot"></div><div class="qt-dot"></div><div class="qt-dot"></div>
+          <span style="font-size:11px;color:var(--text2);margin-left:7px">Coach is thinking…</span>
+        </div>
+        <div id="${containerId}-content" class="hidden" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>`;
+  try {
+    const prompt = `A student answered this exam question incorrectly.\n\nQuestion: "${question}"\nStudent chose: "${wrongOption}"\nCorrect answer: "${correctOption}"\nExplanation: "${explanation}"\n\nIn 3-4 sentences, teach the student WHY their answer was wrong and what concept they need to understand. Be encouraging, concise, and use a friendly coaching tone. Then give one memory trick or mnemonic to remember the correct answer.`;
+    const res = await fetch(`${API}/api/coach/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ message: prompt })
+    });
+    const data = await res.json();
+    const reply = data.response || explanation;
+    const typingEl = document.getElementById(`${containerId}-typing`);
+    if (typingEl) typingEl.style.display = 'none';
+    const content = document.getElementById(`${containerId}-content`);
+    if (!content) return;
+    content.classList.remove('hidden'); content.style.display = 'flex';
+    const msgEl = document.createElement('div');
+    msgEl.style.cssText = 'font-size:13px;line-height:1.7;color:var(--text)';
+    content.appendChild(msgEl);
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;margin-top:4px;flex-wrap:wrap';
+    const askBtn = document.createElement('button');
+    askBtn.className = 'btn btn-ghost btn-sm';
+    askBtn.textContent = '💬 Ask Coach More';
+    askBtn.addEventListener('click', () => openCoachWithQ(question));
+    const diveBtn = document.createElement('button');
+    diveBtn.className = 'btn btn-ghost btn-sm';
+    diveBtn.style.color = 'var(--accent-p)';
+    diveBtn.textContent = '🤖 Deep Dive';
+    diveBtn.addEventListener('click', () => deepDiveCoach(question));
+    btnRow.appendChild(askBtn); btnRow.appendChild(diveBtn);
+    content.appendChild(btnRow);
+    let i = 0;
+    const type = () => { if (i < reply.length) { msgEl.textContent += reply[i++]; setTimeout(type, 11); } };
+    type();
+  } catch (e) {
+    const typingEl = document.getElementById(`${containerId}-typing`);
+    if (typingEl) typingEl.style.display = 'none';
+    const content = document.getElementById(`${containerId}-content`);
+    if (!content) return;
+    content.classList.remove('hidden'); content.style.display = 'flex';
+    content.innerHTML = `<div style="font-size:13px;line-height:1.7;color:var(--text)">${escapeHtml(explanation)}</div>`;
+  }
+}
+
+function openCoachWithQ(question) {
+  gotoPage('coach');
+  el('coach-input').value = `Can you explain more about: ${question}`;
+}
+function deepDiveCoach(question) {
+  gotoPage('coach');
+  el('coach-input').value = `Teach me everything I need to know to answer: "${question}"`;
+  sendCoach();
+}
+
+/* ═══ EXAM OVERLAY ═══ */
+function buildExamDots() {
+  el('exam-q-dots').innerHTML = state.examQuestions.map((_, i) =>
+    `<div class="exam-dot ${i === 0 ? 'current' : ''}" id="exam-dot-${i}" data-qi="${i}">${i + 1}</div>`
+  ).join('');
+  el('exam-q-dots').addEventListener('click', e => {
+    const dot = e.target.closest('[data-qi]');
+    if (dot) renderExamQ(parseInt(dot.dataset.qi));
+  });
+}
+
+function renderExamQ(qi) {
+  state.examCurrentQ = qi;
+  const q = state.examQuestions[qi];
+  const total = state.examQuestions.length;
+  const ua = state.examAnswers[q.id];
+  const rev = state.examReviewMode;
+  el('exam-score-badge').textContent = `${Object.keys(state.examAnswers).length} / ${total}`;
+  document.querySelectorAll('.exam-dot').forEach((d, i) => {
+    d.className = 'exam-dot';
+    const q2 = state.examQuestions[i];
+    const a = state.examAnswers[q2.id];
+    if (i === qi) d.classList.add('current');
+    else if (rev && a !== undefined) d.classList.add(a === q2.correct_answer ? 'correct-dot' : 'wrong-dot');
+    else if (a !== undefined) d.classList.add('answered');
+  });
+  el('exam-prev-btn').disabled = qi === 0;
+  el('exam-next-btn').textContent = qi === total - 1 ? 'Review All →' : 'Next →';
+  const feedbackHTML = (rev && ua !== undefined) ? buildExamFeedback(q, ua) : '';
+  const coachId = `exam-coach-${qi}`;
+  const optionsHTML = q.options.map((o, oi) => {
+    let cls = 'exam-option';
+    if (ua === oi) cls += ' selected';
+    if (rev && oi === q.correct_answer) cls += ' correct';
+    if (rev && ua === oi && ua !== q.correct_answer) cls += ' wrong';
+    if (rev) cls += ' disabled';
+    return `<div class="${cls}" id="eopt-${qi}-${oi}" data-qi="${qi}" data-oi="${oi}">
+      <div class="exam-opt-key">${['A','B','C','D'][oi]}</div>
+      <div class="exam-opt-text">${escapeHtml(o)}</div>
+    </div>`;
+  }).join('');
+  el('exam-q-container').innerHTML = `
+    <div class="exam-q-panel">
+      <div class="exam-q-body">
+        <div class="exam-q-header">
+          <div class="exam-q-num font-mono">QUESTION ${qi + 1} OF ${total}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div class="badge badge-purple">${escapeHtml(q.difficulty)}</div>
+            ${ua !== undefined
+              ? `<div class="badge ${rev ? (ua === q.correct_answer ? 'badge-green' : 'badge-red') : 'badge-cyan'}">Answered</div>`
+              : '<div class="badge badge-accent">Unanswered</div>'}
+          </div>
+        </div>
+        <div class="exam-q-text">${escapeHtml(q.question)}</div>
+        <div class="exam-q-opts">${optionsHTML}</div>
+      </div>
+      ${feedbackHTML}
+    </div>
+    ${rev && ua !== undefined && ua !== q.correct_answer ? `<div id="${coachId}"></div>` : ''}`;
+  if (!rev) {
+    document.querySelectorAll(`[data-qi="${qi}"]`).forEach(optEl => {
+      optEl.addEventListener('click', () => selectExamOpt(qi, parseInt(optEl.dataset.oi)));
+    });
+  }
+  if (rev && ua !== undefined && ua !== q.correct_answer) {
+    coachTeachWrongAnswer(q.question, q.options[ua], q.options[q.correct_answer], q.explanation || 'Review the concept.', coachId);
+  }
+}
+
+function buildExamFeedback(q, ua) {
+  const correct = ua === q.correct_answer;
+  return `<div class="exam-feedback"><div class="exam-feedback-row">
+    <div class="exam-feedback-icon">${correct ? '✅' : '❌'}</div>
+    <div class="exam-feedback-text">
+      <strong style="color:${correct ? 'var(--accent-g)' : 'var(--accent-r)'}">${correct ? 'Correct!' : 'Incorrect'}</strong>
+      ${!correct ? ` — Correct: <strong style="color:var(--accent-g)">${['A','B','C','D'][q.correct_answer]}. ${escapeHtml(q.options[q.correct_answer])}</strong>` : ''}
+      <div style="margin-top:6px;color:var(--text2);font-size:12px;line-height:1.65">${escapeHtml(q.explanation || '')}</div>
+    </div>
+  </div></div>`;
+}
+
+function selectExamOpt(qi, oi) {
+  if (state.examSubmitted) return;
+  const q = state.examQuestions[qi];
+  state.examAnswers[q.id] = oi;
+  updateExamProgress();
+  renderExamQ(qi);
+}
+
+function updateExamProgress() {
+  const pct = state.examQuestions.length ? (Object.keys(state.examAnswers).length / state.examQuestions.length) * 100 : 0;
+  const bar = el('exam-prog-bar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function startExamTimer(seconds) {
+  if (state.examTimer) clearInterval(state.examTimer);
+  state.examTimeLeft = seconds;
+  updateTimerDisplay();
+  state.examTimer = setInterval(() => {
+    state.examTimeLeft--;
+    updateTimerDisplay();
+    if (state.examTimeLeft <= 0) { clearInterval(state.examTimer); submitExam(true); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const t = state.examTimeLeft;
+  const m = String(Math.floor(t / 60)).padStart(2, '0');
+  const s = String(t % 60).padStart(2, '0');
+  const timerEl = el('exam-timer');
+  const box = el('exam-timer-box');
+  if (timerEl) {
+    timerEl.textContent = `${m}:${s}`;
+    box.className = 'exam-timer' + (t < 60 ? ' danger' : t < 180 ? ' warn' : '');
+  }
+}
+
+async function startChapterExam() {
+  const chapter = state.examChapterName;
+  if (!chapter) return toast('Open a chapter first', 'error');
+  toast('Loading exam…', 'info');
+  try {
+    const data = await api('POST', '/api/questions/generate', { chapter, sub_chapter: null, count: 20 });
+    if (!data.questions?.length) return toast('No questions found for this chapter', 'error');
+    state.examQuestions = data.questions;
+    state.examAnswers = {};
+    state.examCurrentQ = 0;
+    state.examSubmitted = false;
+    state.examReviewMode = false;
+    el('exam-chapter-label').textContent = chapter;
+    el('exam-sub-label').textContent = `${data.questions.length} Questions · Timed`;
+    const totalTime = data.questions.length * 90;
+    el('exam-overlay').classList.add('open');
+    renderExamQ(0);
+    buildExamDots();
+    startExamTimer(totalTime);
+    updateExamProgress();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function submitExam(timedOut = false) {
+  if (state.examTimer) clearInterval(state.examTimer);
+  state.examSubmitted = true;
+  const qs = state.examQuestions;
+  let correct = 0, wrong = 0, skipped = 0;
+  qs.forEach(q => {
+    const ua = state.examAnswers[q.id];
+    if (ua === undefined) skipped++;
+    else if (ua === q.correct_answer) correct++;
+    else wrong++;
+  });
+  const total = qs.length;
+  const pct = total ? Math.round(correct / total * 100) : 0;
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '🎯' : pct >= 40 ? '📖' : '💪';
+  const feedback = pct >= 80 ? 'Outstanding! You clearly know this chapter well.'
+    : pct >= 60 ? 'Good work! A few more rounds will nail the rest.'
+    : pct >= 40 ? "You're getting there — review the wrong answers with AI Coach."
+    : 'Keep going! Ask the coach to teach you the hard topics.';
+  el('erm-emoji').textContent = emoji;
+  el('erm-title').textContent = timedOut ? "Time's Up! ⏰" : 'Exam Complete!';
+  el('erm-sub').textContent = `Chapter: ${state.examChapterName}`;
+  el('erm-pct').textContent = pct + '%';
+  el('erm-correct').textContent = correct;
+  el('erm-wrong').textContent = wrong;
+  el('erm-skip').textContent = skipped;
+  el('erm-feedback').textContent = feedback;
+  setTimeout(() => {
+    const dasharray = 326.7;
+    const offset = dasharray - (dasharray * pct / 100);
+    const ring = el('erm-ring');
+    ring.style.strokeDashoffset = offset;
+    ring.style.stroke = pct >= 75 ? 'var(--accent-g)' : pct >= 50 ? 'var(--gold)' : 'var(--accent-r)';
+  }, 100);
+  openModal('exam-result-modal');
+  try { await api('POST', '/api/test/submit', { answers: state.examAnswers, time_taken: {} }); } catch (e) {}
+}
+
+function reviewExam() {
+  closeModal('exam-result-modal');
+  state.examReviewMode = true;
+  const firstWrong = state.examQuestions.findIndex(q => {
+    const ua = state.examAnswers[q.id];
+    return ua !== undefined && ua !== q.correct_answer;
+  });
+  renderExamQ(firstWrong >= 0 ? firstWrong : 0);
+}
+
+function closeExam() {
+  el('exam-overlay').classList.remove('open');
+  if (state.examTimer) clearInterval(state.examTimer);
+}
+
+/* ═══ AUTH ═══ */
+async function doLogin() {
+  const email = el('login-email').value.trim();
+  const password = el('login-pass').value;
+  if (!email || !password) return toast('Please fill all fields', 'error');
+  const btn = el('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password });
+    token = data.token;
+    localStorage.setItem('examai_token', token);
+    currentUser = data.user;
+    afterAuth();
+  } catch (e) {
+    toast(e.message, 'error');
+    btn.disabled = false; btn.textContent = 'Sign In →';
+  }
+}
+
+async function doRegister() {
+  const name = el('reg-name').value.trim();
+  const email = el('reg-email').value.trim();
+  const password = el('reg-pass').value;
+  if (!name || !email || !password) return toast('Please fill all fields', 'error');
+  if (password.length < 6) return toast('Password must be at least 6 characters', 'error');
+  const btn = el('register-btn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const data = await api('POST', '/api/auth/register', { name, email, password });
+    token = data.token;
+    localStorage.setItem('examai_token', token);
+    currentUser = data.user;
+    afterAuth();
+  } catch (e) {
+    toast(e.message, 'error');
+    btn.disabled = false; btn.textContent = 'Create Account →';
+  }
+}
+
+function afterAuth() {
+  el('auth-container').classList.remove('active');
+  if (!currentUser.setup_done) el('setup-container').classList.add('active');
+  else launchApp();
+}
+
+async function doLogout() {
+  try { await api('POST', '/api/auth/logout'); } catch (e) {}
+  token = '';
+  localStorage.removeItem('examai_token');
+  location.reload();
+}
+
+/* ═══ SETUP ═══ */
+async function doSetup() {
+  const exam_type = el('setup-exam').value.trim();
+  const exam_goal = el('setup-goal').value.trim();
+  if (!exam_type) return toast('Please enter your exam type', 'error');
+  const btn = el('setup-btn');
+  btn.disabled = true; btn.textContent = 'Generating curriculum…';
+  try {
+    const data = await api('POST', '/api/exam/setup', { exam_type, exam_goal });
+    toast(`✅ ${data.chapters.length} chapters generated!`, 'success');
+    el('setup-container').classList.remove('active');
+    const prof = await api('GET', '/api/user/profile');
+    currentUser = { ...currentUser, ...prof };
+    launchApp();
+  } catch (e) {
+    toast(e.message, 'error');
+    btn.disabled = false; btn.textContent = 'Generate My Curriculum →';
+  }
+}
+
+/* ═══ APP LAUNCH ═══ */
+function launchApp() {
+  el('app').style.display = 'flex';
+  updateTopBar();
+  updateSidebar();
+  gotoPage('dashboard');
+  loadDashboard();
+  loadCoachHistory();
+  loadChapterListForDynamic(); // populate dynamic chapter select
+}
+
+function updateTopBar() {
+  if (!currentUser) return;
+  el('tb-xp-val').textContent = currentUser.xp || 0;
+  el('tb-coins').textContent = currentUser.coins || 0;
+  el('tb-xp-bar').style.width = (currentUser.xp_progress || 0) + '%';
+}
+
+function updateSidebar() {
+  if (!currentUser) return;
+  const name = currentUser.name || 'User';
+  el('sb-name').textContent = name;
+  el('sb-level').textContent = `Level ${currentUser.level || 1}`;
+  const av = el('sb-avatar');
+  av.textContent = name[0].toUpperCase();
+  av.style.background = currentUser.avatar_color || 'linear-gradient(135deg,#3b82f6,#8b5cf6)';
+}
+
+/* ═══ NAVIGATION ═══ */
+const pageTitles = {
+  dashboard:'Dashboard','daily-test':'Daily Test',chapters:'Chapters',
+  'weak-session':'Weak Training',dynamic:'Dynamic Mode',interview:'Interview Mode',
+  challenge:'Daily Challenge',global:'Global Tests',coach:'AI Coach',
+  bookmarks:'Bookmarks',analytics:'Analytics',leaderboard:'Leaderboard',profile:'Profile',
+};
+
+function gotoPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el(`page-${id}`)?.classList.add('active');
+  document.querySelectorAll(`.nav-item[data-page="${id}"]`).forEach(n => n.classList.add('active'));
+  el('tb-title').textContent = pageTitles[id] || id;
+  currentPage = id;
+  closeSidebar();
+  const loaders = {
+    'daily-test': loadDailyTest, chapters: loadChapters,
+    'weak-session': resetWeakUI, analytics: loadAnalytics,
+    leaderboard: loadLeaderboard, bookmarks: loadBookmarks,
+    global: loadGlobalTests, challenge: loadChallenge,
+    profile: loadProfile, interview: loadInterviewTypes,
+    dynamic: () => { /* reset to start view */
+      show('dyn-start'); hide('dyn-session'); hide('dyn-results');
+    }
+  };
+  loaders[id]?.();
+}
+
+function toggleSidebar() { el('sidebar').classList.toggle('open'); el('sidebar-backdrop').classList.toggle('open'); }
+function closeSidebar() { el('sidebar').classList.remove('open'); el('sidebar-backdrop')?.classList.remove('open'); }
+
+/* ═══ DASHBOARD ═══ */
+async function loadDashboard() {
+  const hr = new Date().getHours();
+  el('dash-greeting').textContent = (hr < 12 ? 'Good morning!' : hr < 17 ? 'Good afternoon!' : 'Good evening!') + ' 👋';
+  try {
+    const prof = await api('GET', '/api/user/profile');
+    currentUser = { ...currentUser, ...prof };
+    updateTopBar(); updateSidebar();
+    el('ds-att').textContent = prof.stats.total_attempted;
+    el('ds-acc').textContent = prof.stats.overall_accuracy + '%';
+    el('ds-streak').textContent = prof.stats.study_streak + ' 🔥';
+    el('ds-coins').textContent = prof.coins;
+    el('dash-sub').textContent = `Exam: ${prof.exam_type || 'Not set'} · ${prof.stats.total_attempted} questions answered`;
+    const achs = prof.achievements.slice(-3).reverse();
+    el('dash-achs').innerHTML = achs.length
+      ? achs.map(a => `<div class="ach-card"><div class="ach-icon">${a.icon}</div><div><div class="ach-name">${escapeHtml(a.name)}</div><div class="ach-desc">${escapeHtml(a.desc)}</div></div><div class="ach-xp">+${a.xp} XP</div></div>`).join('')
+      : '<div class="text-muted text-sm">Complete questions to earn achievements!</div>';
+  } catch (e) { toast(e.message, 'error'); }
+  try { const insight = await api('GET', '/api/coach/daily-insight'); el('dash-insight').textContent = insight.insight; } catch (e) {}
+  try {
+    const an = await api('GET', '/api/analytics');
+    const hist = an.daily_history.slice(0, 7);
+    el('dash-daily-hist').innerHTML = hist.length
+      ? hist.map(h => {
+          const pct = h.pct || 0;
+          const cls = pct >= 75 ? 'pf-green' : pct >= 50 ? 'pf-gold' : 'pf-red';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap">
+            <div class="text-sm fw-600">${escapeHtml(h.test_date)}</div>
+            <div class="text-xs text-muted">${escapeHtml(h.chapter_name || '—')}</div>
+            <div style="display:flex;align-items:center;gap:8px;min-width:120px">
+              <div class="progress-bar" style="flex:1"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
+              <div class="text-xs fw-700" style="min-width:32px;text-align:right">${pct}%</div>
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="text-muted text-sm">No test history yet. Take your first daily test!</div>';
+  } catch (e) {}
+}
+
+/* ═══ DAILY TEST ═══ */
+async function loadDailyTest() {
+  show('dt-loading'); hide('dt-content'); hide('dt-results');
+  state.dailyAnswers = {};
+  try {
+    const data = await api('GET', '/api/test/daily');
+    state.dailyTest = data;
+    hide('dt-loading');
+    if (!data.questions?.length) {
+      show('dt-content');
+      el('dt-questions').innerHTML = `<div class="card text-center" style="padding:40px">
+        <div style="font-size:46px;margin-bottom:12px">📚</div>
+        <div class="fw-700 text-lg mb-8">No questions available</div>
+        <div class="text-muted text-sm mb-16">${escapeHtml(data.message || 'Go to Chapters to generate questions first.')}</div>
+        <button class="btn btn-primary" data-goto="chapters">Go to Chapters →</button>
+      </div>`;
+      return;
+    }
+    if (data.completed) { showDTResults(data.score, data.total, [], true); return; }
+    show('dt-content');
+    el('dt-meta').textContent = `Chapter: ${data.chapter_name || 'Mixed'} · ${data.questions.length} questions`;
+    renderDTQuestions(data.questions);
+  } catch (e) { toast(e.message, 'error'); hide('dt-loading'); }
+}
+
+function renderDTQuestions(qs) {
+  el('dt-progress-badge').textContent = `0 / ${qs.length}`;
+  el('dt-questions').innerHTML = qs.map((q, qi) => `
+    <div class="card mb-10">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="badge badge-accent">Q${qi + 1}</div>
+        <div class="badge badge-purple">${escapeHtml(q.difficulty)}</div>
+      </div>
+      <div class="fw-600 mb-12" style="font-size:14px;line-height:1.6">${escapeHtml(q.question)}</div>
+      <div class="mcq-options">
+        ${q.options.map((o, oi) => `
+          <div class="mcq-option" id="dto-${q.id}-${oi}" data-qid="${q.id}" data-oi="${oi}" data-total="${qs.length}">
+            <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+            <div class="mcq-opt-text">${escapeHtml(o)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('[data-qid]').forEach(optEl => {
+    optEl.addEventListener('click', () => {
+      if (optEl.classList.contains('disabled')) return;
+      selectDTAnswer(optEl.dataset.qid, parseInt(optEl.dataset.oi), parseInt(optEl.dataset.total));
+    });
+  });
+}
+
+function selectDTAnswer(qid, oi, total) {
+  state.dailyAnswers[qid] = oi;
+  document.querySelectorAll(`[id^="dto-${qid}-"]`).forEach(e => e.classList.remove('selected'));
+  el(`dto-${qid}-${oi}`)?.classList.add('selected');
+  el('dt-progress-badge').textContent = `${Object.keys(state.dailyAnswers).length} / ${total}`;
+}
+
+async function submitDailyTest() {
+  if (!state.dailyTest) return;
+  const btn = el('dt-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const data = await api('POST', '/api/test/submit', { test_id: state.dailyTest.test_id, answers: state.dailyAnswers, time_taken: {} });
+    handleNewAchievements(data.new_achievements);
+    showDTResults(data.score, data.total, data.results || []);
+    if (currentUser) { currentUser.xp = (currentUser.xp || 0) + data.xp_earned; updateTopBar(); }
+  } catch (e) {
+    toast(e.message, 'error');
+    btn.disabled = false; btn.textContent = 'Submit Test';
+  }
+}
+
+function showDTResults(score, total, results, alreadyDone = false) {
+  hide('dt-loading'); hide('dt-content');
+  const pct = total ? Math.round(score / total * 100) : 0;
+  el('dt-res-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🎯' : '💪';
+  el('dt-res-score').textContent = `${score} / ${total} — ${pct}%`;
+  el('dt-res-msg').textContent = alreadyDone ? 'Already completed today!' : pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Good effort!' : 'Keep practicing!';
+  let html = '';
+  results.forEach((r, i) => {
+    const coachId = `dt-coach-${i}`;
+    html += `<div class="card mb-8">
+      <div class="badge ${r.is_correct ? 'badge-green' : 'badge-red'} mb-8">${r.is_correct ? '✓ Correct' : '✗ Wrong'}</div>
+      <div class="fw-600 text-sm mb-8">${escapeHtml(r.question)}</div>
+      <div class="expl-box ${r.is_correct ? 'correct' : 'wrong'} text-sm">${escapeHtml(r.explanation)}</div>
+      ${!r.is_correct ? `<div id="${coachId}"></div>` : ''}
+    </div>`;
+  });
+  el('dt-res-detail').innerHTML = html;
+  results.forEach((r, i) => {
+    if (!r.is_correct) {
+      coachTeachWrongAnswer(r.question, r.user_option || 'your answer', r.correct_option || 'the correct answer', r.explanation, `dt-coach-${i}`);
+    }
+  });
+  show('dt-results');
+}
+
+/* ═══ CHAPTERS — FIXED with data attributes + event delegation ═══ */
+async function loadChapters() {
+  const grid = el('chapters-grid');
+  grid.innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    const data = await api('GET', '/api/exam/chapters');
+    state.availableChapters = data.chapters.filter(ch => ch.unlocked).map(ch => ch.name);
+    // Refresh dynamic chapter list
+    populateDynChapterSelect();
+
+    if (!data.chapters.length) {
+      grid.innerHTML = '<div class="text-muted">No chapters found. Please complete setup first.</div>';
+      return;
+    }
+
+    grid.innerHTML = data.chapters.map(ch => `
+      <div class="chapter-card ${ch.unlocked ? '' : 'locked'} ${ch.complete ? 'complete' : ''}"
+           ${ch.unlocked ? `data-chapter="${escapeHtml(ch.name)}"` : ''}>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="badge ${ch.complete ? 'badge-green' : ch.unlocked ? 'badge-accent' : 'badge-purple'}">
+            ${ch.complete ? '✅ Done' : ch.unlocked ? '🔓 Open' : '🔒 Locked'}
+          </div>
+          <div class="badge ${ch.status === 'strong' ? 'badge-green' : ch.status === 'weak' ? 'badge-red' : 'badge-accent'}">${escapeHtml(ch.status)}</div>
+        </div>
+        <div class="ch-name">${escapeHtml(ch.name)}</div>
+        <div class="ch-meta"><span>📊 ${ch.attempted}</span><span>🎯 ${ch.accuracy}%</span><span>📚 ${ch.total_questions}</span></div>
+        <div class="progress-bar mt-8">
+          <div class="progress-fill ${ch.accuracy >= 75 ? 'pf-green' : ch.accuracy >= 50 ? 'pf-gold' : 'pf-red'}" style="width:${ch.accuracy}%"></div>
+        </div>
+      </div>`).join('');
+
+    // ✅ FIX: use event delegation on grid — no inline onclick
+    grid.addEventListener('click', e => {
+      const card = e.target.closest('[data-chapter]');
+      if (card) openChapter(card.dataset.chapter);
+    });
+  } catch (e) { toast(e.message, 'error'); grid.innerHTML = ''; }
+}
+
+function closeSubPanel() {
+  el('sub-panel').classList.add('hidden');
+  state.examChapterName = '';
+}
+
+/* ✅ FIXED openChapter — no JSON.stringify in onclick */
+async function openChapter(name) {
+  state.examChapterName = name;
+  const panel = el('sub-panel');
+  el('sub-chapter-title').textContent = `📖 ${name}`;
+  el('exam-mode-sub').textContent = `Full timed exam for "${name}"`;
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth' });
+  hide('practice-panel');
+  const list = el('sub-chapters-list');
+  list.innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    const data = await api('GET', `/api/chapters/${encodeURIComponent(name)}/sub-chapters`);
+    list.innerHTML = data.sub_chapters.map(s => `
+      <div class="chapter-card" data-chapter="${escapeHtml(name)}" data-sub="${escapeHtml(s.name)}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="badge ${s.practiced ? 'badge-green' : 'badge-accent'}">${s.practiced ? '✅ Practiced' : '📖 Study'}</div>
+          <div class="text-xs text-muted">${s.total_questions} Qs</div>
+        </div>
+        <div class="ch-name">${escapeHtml(s.name)}</div>
+        <div class="ch-meta"><span>🎯 ${s.accuracy}%</span><span>📊 ${s.total_attempts}/${s.required_attempts}</span></div>
+        <div class="progress-bar mt-8">
+          <div class="progress-fill ${s.accuracy >= 75 ? 'pf-green' : s.accuracy >= 50 ? 'pf-gold' : 'pf-red'}" style="width:${s.accuracy}%"></div>
+        </div>
+      </div>`).join('');
+
+    // ✅ FIX: event delegation for sub-chapters
+    list.addEventListener('click', e => {
+      const card = e.target.closest('[data-sub]');
+      if (card) openSubChapter(card.dataset.chapter, card.dataset.sub);
+    });
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function openSubChapter(chapter, sub) {
+  const panel = el('practice-panel');
+  panel.classList.remove('hidden');
+  panel.innerHTML = '<div class="loading-center"><div class="spinner"></div><div>Loading questions…</div></div>';
+  panel.scrollIntoView({ behavior: 'smooth' });
+  state.subPracticeAnswers = {};
+  try {
+    const data = await api('POST', '/api/questions/generate', { chapter, sub_chapter: sub, count: 10 });
+    state.subPracticeQs = data.questions;
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="section-title text-sm">${escapeHtml(sub)}</div>
+        <button class="btn btn-primary btn-sm" id="sp-submit-btn">Submit Practice</button>
+      </div>
+      ${data.questions.map((q, qi) => `
+        <div class="card mb-8">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div class="badge badge-accent">Q${qi + 1}</div>
+            <div class="badge badge-purple">${escapeHtml(q.difficulty)}</div>
+          </div>
+          <div class="fw-600 mb-10" style="font-size:13px;line-height:1.6">${escapeHtml(q.question)}</div>
+          <div class="mcq-options">
+            ${q.options.map((o, oi) => `
+              <div class="mcq-option" id="spo-${q.id}-${oi}" data-spqid="${q.id}" data-spoi="${oi}">
+                <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+                <div class="mcq-opt-text">${escapeHtml(o)}</div>
+              </div>`).join('')}
+          </div>
+          <div id="sp-coach-${q.id}" class="mt-8"></div>
+        </div>`).join('')}`;
+    document.querySelectorAll('[data-spqid]').forEach(optEl => {
+      optEl.addEventListener('click', () => {
+        if (optEl.classList.contains('disabled') || optEl.classList.contains('correct') || optEl.classList.contains('wrong')) return;
+        selectSubAns(optEl.dataset.spqid, parseInt(optEl.dataset.spoi));
+      });
+    });
+    el('sp-submit-btn').addEventListener('click', () => submitSubPractice(chapter));
+  } catch (e) { toast(e.message, 'error'); panel.innerHTML = ''; }
+}
+
+function selectSubAns(qid, oi) {
+  state.subPracticeAnswers[qid] = oi;
+  document.querySelectorAll(`[id^="spo-${qid}-"]`).forEach(e => e.classList.remove('selected'));
+  el(`spo-${qid}-${oi}`)?.classList.add('selected');
+}
+
+async function submitSubPractice(chapter) {
+  try {
+    const data = await api('POST', '/api/test/chapter-practice', { answers: state.subPracticeAnswers, time_taken: {} });
+    handleNewAchievements(data.new_achievements);
+    toast(`✅ ${data.score}/${data.total} — ${data.percentage}%`, data.percentage >= 75 ? 'success' : 'info');
+    state.subPracticeQs.forEach(q => {
+      const ua = state.subPracticeAnswers[q.id];
+      ['A','B','C','D'].forEach((_, oi) => {
+        const optEl = el(`spo-${q.id}-${oi}`);
+        if (!optEl) return;
+        optEl.classList.remove('selected');
+        if (oi === q.correct_answer) optEl.classList.add('correct');
+        else if (oi === ua) optEl.classList.add('wrong');
+        optEl.classList.add('disabled');
+      });
+      if (ua !== undefined && ua !== q.correct_answer) {
+        coachTeachWrongAnswer(q.question, q.options[ua], q.options[q.correct_answer], q.explanation || '', `sp-coach-${q.id}`);
+      }
+    });
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ WEAK SESSION ═══ */
+function resetWeakUI() { show('ws-start'); hide('ws-loading'); hide('ws-content'); hide('ws-results'); }
+
+async function loadWeakSession() {
+  hide('ws-start'); show('ws-loading'); hide('ws-content'); hide('ws-results');
+  state.weakAnswers = {};
+  try {
+    const data = await api('GET', '/api/test/weak-session');
+    state.weakSession = data;
+    hide('ws-loading');
+    if (!data.questions?.length) { show('ws-start'); toast('No weak areas found! 🎉', 'success'); return; }
+    show('ws-content');
+    el('ws-count').textContent = `${data.questions.length} questions`;
+    el('ws-questions').innerHTML = data.questions.map((q, qi) => `
+      <div class="card mb-8">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="badge badge-red">Weak Q${qi + 1}</div>
+          <div class="text-xs text-muted">${escapeHtml(q.chapter)}</div>
+        </div>
+        <div class="fw-600 mb-10" style="font-size:13px;line-height:1.6">${escapeHtml(q.question)}</div>
+        <div class="mcq-options">
+          ${q.options.map((o, oi) => `
+            <div class="mcq-option" id="wso-${q.id}-${oi}" data-wsqid="${q.id}" data-wsoi="${oi}">
+              <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+              <div class="mcq-opt-text">${escapeHtml(o)}</div>
+            </div>`).join('')}
+        </div>
+        <div id="ws-coach-${q.id}"></div>
+      </div>`).join('');
+    document.querySelectorAll('[data-wsqid]').forEach(optEl => {
+      optEl.addEventListener('click', () => {
+        if (optEl.classList.contains('disabled')) return;
+        selectWSAns(optEl.dataset.wsqid, parseInt(optEl.dataset.wsoi));
+      });
+    });
+  } catch (e) { toast(e.message, 'error'); resetWeakUI(); }
+}
+
+function selectWSAns(qid, oi) {
+  state.weakAnswers[qid] = oi;
+  document.querySelectorAll(`[id^="wso-${qid}-"]`).forEach(e => e.classList.remove('selected'));
+  el(`wso-${qid}-${oi}`)?.classList.add('selected');
+}
+
+async function submitWeakSession() {
+  if (!state.weakSession) return;
+  try {
+    const data = await api('POST', '/api/test/weak-session/submit', { session_id: state.weakSession.session_id, answers: state.weakAnswers });
+    handleNewAchievements(data.new_achievements);
+    state.weakSession.questions.forEach(q => {
+      const ua = state.weakAnswers[q.id];
+      ['A','B','C','D'].forEach((_, oi) => {
+        const optEl = el(`wso-${q.id}-${oi}`);
+        if (!optEl) return;
+        optEl.classList.remove('selected');
+        if (oi === q.correct_answer) optEl.classList.add('correct');
+        else if (oi === ua) optEl.classList.add('wrong');
+        optEl.classList.add('disabled');
+      });
+      if (ua !== undefined && ua !== q.correct_answer) {
+        coachTeachWrongAnswer(q.question, q.options[ua] || '', q.options[q.correct_answer] || '', q.explanation || '', `ws-coach-${q.id}`);
+      }
+    });
+    hide('ws-content');
+    el('ws-res-score').textContent = `${data.score}/${data.total} — ${data.percentage}%`;
+    show('ws-results');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ DYNAMIC MODE — with chapter + difficulty selection ═══ */
+async function loadChapterListForDynamic() {
+  try {
+    const data = await api('GET', '/api/exam/chapters');
+    state.availableChapters = data.chapters.filter(ch => ch.unlocked).map(ch => ch.name);
+    populateDynChapterSelect();
+  } catch (e) {}
+}
+
+function populateDynChapterSelect() {
+  const sel = el('dyn-chapter-select');
+  if (!sel) return;
+  // Keep the first "All Chapters" option
+  sel.innerHTML = '<option value="">All Chapters (random)</option>' +
+    state.availableChapters.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+}
+
+async function startDynamic() {
+  const chapter = el('dyn-chapter-select').value || null;
+  const difficulty = el('dyn-difficulty-select').value || null;
+  hide('dyn-start'); show('dyn-session'); hide('dyn-results');
+  el('dyn-chapter-label').textContent = chapter ? `Chapter: ${chapter}` : 'All Chapters';
+  state.dynAnswered = false;
+  try {
+    const payload = {};
+    if (chapter) payload.chapter = chapter;
+    if (difficulty) payload.difficulty = difficulty;
+    const data = await api('POST', '/api/session/dynamic/start', payload);
+    state.dynSession = data;
+    el('dyn-score-badge').textContent = '0/0';
+    await loadNextDynamic();
+  } catch (e) {
+    toast(e.message, 'error');
+    show('dyn-start'); hide('dyn-session');
+  }
+}
+
+async function loadNextDynamic() {
+  if (!state.dynSession) return;
+  state.dynAnswered = false;
+  const card = el('dyn-q-card');
+  card.innerHTML = '<div class="loading-center"><div class="spinner"></div><div>Generating…</div></div>';
+  try {
+    const q = await api('GET', `/api/session/dynamic/${state.dynSession.session_id}/next`);
+    state.dynAttemptId = q.attempt_id;
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="badge badge-purple">${escapeHtml(q.difficulty)}</div>
+        <div class="text-muted text-xs">Score: ${q.running_score}/${q.running_total}</div>
+      </div>
+      <div class="fw-600 mb-14" style="font-size:14px;line-height:1.6">${escapeHtml(q.question)}</div>
+      <div class="mcq-options" id="dyn-opts">
+        ${q.options.map((o, oi) => `
+          <div class="mcq-option" id="dyno-${oi}" data-dynoi="${oi}">
+            <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+            <div class="mcq-opt-text">${escapeHtml(o)}</div>
+          </div>`).join('')}
+      </div>
+      <div id="dyn-explanation" class="hidden expl-box mt-12"></div>
+      <div id="dyn-coach-teach"></div>
+      <button id="dyn-next-btn" class="btn btn-ghost mt-12 hidden">Next Question →</button>`;
+    document.querySelectorAll('[data-dynoi]').forEach(optEl => {
+      optEl.addEventListener('click', () => submitDynAnswer(parseInt(optEl.dataset.dynoi), q.question, q.options));
+    });
+    el('dyn-next-btn').addEventListener('click', loadNextDynamic);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function submitDynAnswer(oi, questionText, options) {
+  if (state.dynAnswered || !state.dynAttemptId) return;
+  state.dynAnswered = true;
+  document.querySelectorAll('[data-dynoi]').forEach(e => e.classList.add('disabled'));
+  try {
+    const data = await api('POST', '/api/session/dynamic/answer', { attempt_id: state.dynAttemptId, user_answer: oi, time_taken: 0 });
+    el(`dyno-${oi}`)?.classList.add(data.is_correct ? 'correct' : 'wrong');
+    if (!data.is_correct) el(`dyno-${data.correct_answer}`)?.classList.add('correct');
+    const expEl = el('dyn-explanation');
+    expEl.textContent = data.explanation;
+    expEl.className = `expl-box mt-12 ${data.is_correct ? 'correct' : 'wrong'}`;
+    expEl.classList.remove('hidden');
+    el('dyn-next-btn').classList.remove('hidden');
+    el('dyn-score-badge').textContent = `${data.running_score}/${data.running_total}`;
+    if (data.is_correct) {
+      toast(`+${data.xp_earned} XP 🎯`, 'success');
+    } else {
+      // ✅ NEW: AI Coach explains wrong answer in dynamic mode too
+      const wrongOpt = (options && options[oi]) ? options[oi] : (data.user_option || 'your answer');
+      const correctOpt = (options && data.correct_answer !== undefined) ? options[data.correct_answer] : (data.correct_option || '');
+      coachTeachWrongAnswer(questionText || '', wrongOpt, correctOpt, data.explanation, 'dyn-coach-teach');
+    }
+  } catch (e) { toast(e.message, 'error'); state.dynAnswered = false; }
+}
+
+async function stopDynamic() {
+  if (!state.dynSession) { show('dyn-start'); hide('dyn-session'); return; }
+  try {
+    const data = await api('POST', '/api/session/dynamic/stop', { session_id: state.dynSession.session_id });
+    hide('dyn-session');
+    el('dyn-res-score').textContent = `${data.score}/${data.total} — ${data.percentage}%`;
+    el('dyn-res-msg').textContent = data.performance === 'excellent' ? 'Excellent!' : data.performance === 'good' ? 'Good job!' : 'Keep practicing!';
+    show('dyn-results');
+    handleNewAchievements(data.new_achievements);
+    state.dynSession = null;
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ INTERVIEW ═══ */
+async function loadInterviewTypes() {
+  const container = el('iv-types');
+  container.innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    const data = await api('GET', '/api/interview/types');
+    container.innerHTML = data.types.map(t => `
+      <div class="interview-type-card ${state.ivType === t.id ? 'selected' : ''}" data-ivtype="${escapeHtml(t.id)}">
+        <div class="it-icon">${t.icon}</div>
+        <div class="it-label">${escapeHtml(t.label)}</div>
+        <div class="it-desc">${escapeHtml(t.desc)}</div>
+      </div>`).join('');
+    container.addEventListener('click', e => {
+      const card = e.target.closest('[data-ivtype]');
+      if (!card) return;
+      state.ivType = card.dataset.ivtype;
+      document.querySelectorAll('.interview-type-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+  } catch (e) { container.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+async function startInterview() {
+  const btn = el('iv-start-btn');
+  btn.disabled = true; btn.textContent = 'Starting…';
+  try {
+    const data = await api('POST', '/api/interview/start', {
+      chapter: el('iv-chapter').value.trim() || null,
+      interview_type: state.ivType,
+      total_questions: parseInt(el('iv-qcount').value),
+    });
+    state.ivSession = data;
+    state.ivQaId = data.qa_id;
+    hide('iv-setup'); show('iv-session'); hide('iv-results');
+    el('iv-title').textContent = `${data.icon || '🎤'} ${data.interview_label}`;
+    renderIVQuestion(data);
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Start Interview 🎤'; }
+}
+
+function renderIVQuestion(data) {
+  el('iv-q-num').textContent = `Question ${data.question_number} of ${data.total_questions || state.ivSession?.total_questions}`;
+  el('iv-question').textContent = data.question;
+  el('iv-progress').textContent = `Q ${data.question_number} / ${data.total_questions || 10}`;
+  el('iv-feedback-box').classList.add('hidden');
+  el('iv-next-wrap').classList.add('hidden');
+  el('iv-submit-btn').disabled = false;
+  const mcqWrap = el('iv-mcq-options');
+  const openWrap = el('iv-open-wrap');
+  if (data.type === 'mcq' && data.options) {
+    mcqWrap.classList.remove('hidden'); openWrap.classList.add('hidden');
+    state.ivMCQAnswer = null;
+    mcqWrap.innerHTML = data.options.map((o, oi) => `
+      <div class="mcq-option" id="ivo-${oi}" data-ivoi="${oi}">
+        <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+        <div class="mcq-opt-text">${escapeHtml(o)}</div>
+      </div>`).join('');
+    document.querySelectorAll('[data-ivoi]').forEach(optEl => {
+      optEl.addEventListener('click', () => {
+        state.ivMCQAnswer = parseInt(optEl.dataset.ivoi);
+        document.querySelectorAll('[data-ivoi]').forEach(e => e.classList.remove('selected'));
+        optEl.classList.add('selected');
+      });
+    });
+  } else {
+    mcqWrap.classList.add('hidden'); openWrap.classList.remove('hidden');
+    el('iv-open-ans').value = '';
+  }
+}
+
+async function submitInterviewAnswer() {
+  if (!state.ivSession || !state.ivQaId) return;
+  const isMCQ = !el('iv-mcq-options').classList.contains('hidden');
+  const ans = isMCQ ? String(state.ivMCQAnswer ?? '') : el('iv-open-ans').value.trim();
+  if (!isMCQ && !ans) return toast('Please type your answer', 'error');
+  if (isMCQ && state.ivMCQAnswer === null) return toast('Select an option', 'error');
+  const btn = el('iv-submit-btn');
+  btn.disabled = true; btn.textContent = 'Evaluating…';
+  try {
+    const data = await api('POST', '/api/interview/answer', {
+      session_id: state.ivSession.session_id, qa_id: state.ivQaId,
+      user_answer: ans, time_taken: 0,
+    });
+    const fbEl = el('iv-feedback-box');
+    fbEl.textContent = data.feedback;
+    fbEl.className = `expl-box ${data.is_correct ? 'correct' : 'wrong'}`;
+    fbEl.classList.remove('hidden');
+    if (data.session_ended) {
+      state.ivNextQ = null;
+      setTimeout(() => showIVResults(data), 1200);
+    } else {
+      state.ivNextQ = { question: data.next_question, type: data.next_type, options: data.next_options, question_number: data.next_question_number, total_questions: state.ivSession.total_questions };
+      state.ivNextQaId = data.next_qa_id;
+      el('iv-next-wrap').classList.remove('hidden');
+    }
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Submit Answer →'; }
+}
+
+function showNextIVQuestion() {
+  if (!state.ivNextQ) return;
+  state.ivQaId = state.ivNextQaId;
+  renderIVQuestion(state.ivNextQ);
+  state.ivNextQ = null;
+}
+
+function showIVResults(data) {
+  hide('iv-session');
+  el('iv-res-emoji').textContent = data.performance_emoji || '🏅';
+  el('iv-res-score').textContent = `${(data.final_score || 0).toFixed(0)} / ${data.final_max || 0} — ${data.final_pct || 0}%`;
+  el('iv-res-summary').textContent = data.summary || 'Interview complete!';
+  show('iv-results');
+  handleNewAchievements(data.new_achievements);
+}
+
+function resetInterview() {
+  state.ivSession = null; state.ivQaId = null;
+  show('iv-setup'); hide('iv-session'); hide('iv-results');
+  loadInterviewTypes();
+}
+
+async function endInterview() {
+  if (!state.ivSession) return;
+  try {
+    const data = await api('POST', `/api/interview/${state.ivSession.session_id}/end`);
+    showIVResults({ ...data, performance_emoji: '🏅', new_achievements: [] });
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ DAILY CHALLENGE ═══ */
+async function loadChallenge() {
+  show('dc-loading'); hide('dc-content');
+  state.challenge = null; state.challengeAnswer = null;
+  try {
+    const data = await api('GET', '/api/challenge/daily');
+    state.challenge = data;
+    hide('dc-loading');
+    if (!data.question) {
+      el('dc-loading').innerHTML = '<div class="text-muted">No challenge today.</div>';
+      show('dc-loading'); return;
+    }
+    el('dc-chapter').textContent = `📖 ${data.chapter || 'Mixed'}`;
+    el('dc-xp').textContent = data.xp_reward || 75;
+    el('dc-question').textContent = data.question;
+    const optsCont = el('dc-options');
+    optsCont.innerHTML = data.options.map((o, oi) => `
+      <div class="mcq-option" id="dco-${oi}" data-dcoi="${oi}">
+        <div class="mcq-opt-letter">${['A','B','C','D'][oi]}</div>
+        <div class="mcq-opt-text">${escapeHtml(o)}</div>
+      </div>`).join('');
+    optsCont.addEventListener('click', e => {
+      const opt = e.target.closest('[data-dcoi]');
+      if (!opt || state.challenge?.completed) return;
+      state.challengeAnswer = parseInt(opt.dataset.dcoi);
+      document.querySelectorAll('[data-dcoi]').forEach(e => e.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+    if (data.completed) {
+      el('dc-submit-btn').disabled = true;
+      el('dc-submit-btn').textContent = 'Already Completed ✅';
+      if (data.correct_answer !== null) {
+        el(`dco-${data.correct_answer}`)?.classList.add('correct');
+        if (data.user_answer !== null && data.user_answer !== data.correct_answer)
+          el(`dco-${data.user_answer}`)?.classList.add('wrong');
+        showChallengeResult(data.user_answer === data.correct_answer, data.explanation);
+      }
+    }
+    show('dc-content');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function submitChallenge() {
+  if (state.challengeAnswer === null) return toast('Select an option first', 'error');
+  const btn = el('dc-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const data = await api('POST', '/api/challenge/daily/submit', { user_answer: state.challengeAnswer });
+    el(`dco-${data.correct_answer}`)?.classList.add('correct');
+    if (!data.is_correct) el(`dco-${state.challengeAnswer}`)?.classList.add('wrong');
+    document.querySelectorAll('[data-dcoi]').forEach(e => e.classList.add('disabled'));
+    btn.textContent = 'Submitted ✅';
+    showChallengeResult(data.is_correct, data.explanation);
+    if (data.is_correct) toast(`+${data.xp_earned} XP 🌟`, 'success');
+    handleNewAchievements(data.new_achievements);
+    if (!data.is_correct && state.challenge) {
+      let coachDiv = document.getElementById('dc-coach-teach');
+      if (!coachDiv) { coachDiv = document.createElement('div'); coachDiv.id = 'dc-coach-teach'; el('dc-content').appendChild(coachDiv); }
+      coachTeachWrongAnswer(state.challenge.question, state.challenge.options?.[state.challengeAnswer] || '', state.challenge.options?.[data.correct_answer] || '', data.explanation, 'dc-coach-teach');
+    }
+  } catch (e) { toast(e.message, 'error'); btn.disabled = false; btn.textContent = 'Submit Answer'; }
+}
+
+function showChallengeResult(isCorrect, explanation) {
+  const resultEl = el('dc-result');
+  resultEl.className = `expl-box ${isCorrect ? 'correct' : 'wrong'}`;
+  resultEl.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</strong><br/>${escapeHtml(explanation)}`;
+  resultEl.classList.remove('hidden');
+}
+
+/* ═══ GLOBAL TESTS ═══ */
+async function loadGlobalTests() {
+  show('global-loading'); hide('global-list');
+  try {
+    const data = await api('GET', '/api/global-tests');
+    const listEl = el('global-list');
+    if (!data.tests.length) {
+      listEl.innerHTML = '<div class="card text-center" style="padding:40px"><div style="font-size:46px;margin-bottom:12px">🌍</div><div class="fw-700 text-lg">No Global Tests Yet</div></div>';
+    } else {
+      listEl.innerHTML = data.tests.map(t => `
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div class="fw-700 text-lg">${escapeHtml(t.title)}</div>
+            <div class="badge ${t.status === 'live' ? 'badge-red' : t.status === 'ended' ? 'badge-purple' : 'badge-accent'}">${t.status === 'live' ? '🔴 LIVE' : t.status === 'ended' ? '✅ Ended' : escapeHtml(t.status.toUpperCase())}</div>
+          </div>
+          <div class="ch-meta mb-10"><span>📚 ${escapeHtml(t.exam_type)}</span><span>👥 ${t.participant_count}</span><span>❓ ${t.question_count}</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${t.status !== 'ended' && !t.my_participation?.joined ? `<button class="btn btn-primary btn-sm" data-gid="${t.id}">Join Test</button>` : ''}
+            ${t.status === 'ended' ? '<button class="btn btn-ghost btn-sm">View Results</button>' : ''}
+          </div>
+        </div>`).join('');
+    }
+    hide('global-loading');
+    listEl.style.display = 'flex'; listEl.style.flexDirection = 'column'; listEl.style.gap = '12px';
+    listEl.classList.remove('hidden');
+    listEl.addEventListener('click', async e => {
+      const btn = e.target.closest('[data-gid]');
+      if (!btn) return;
+      try {
+        const res = await api('POST', '/api/global-tests/join', { global_test_id: parseInt(btn.dataset.gid) });
+        toast(res.message || 'Joined!', 'success');
+        loadGlobalTests();
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  } catch (e) { toast(e.message, 'error'); hide('global-loading'); }
+}
+
+/* ═══ AI COACH ═══ */
+async function loadCoachHistory() {
+  try {
+    const data = await api('GET', '/api/coach/history?limit=20');
+    const chatEl = el('coach-chat');
+    if (data.messages.length) {
+      chatEl.innerHTML = data.messages.map(m => `
+        <div class="coach-bubble ${m.type}">
+          <div class="coach-avatar">${m.type === 'user' ? '👤' : '🤖'}</div>
+          <div class="coach-msg">${escapeHtml(m.message)}</div>
+        </div>`).join('');
+    } else {
+      chatEl.innerHTML = `<div class="coach-bubble"><div class="coach-avatar">🤖</div><div class="coach-msg">👋 Hi! I'm your AI coach. Ask me anything about your exam, or I'll jump in automatically when you get something wrong!</div></div>`;
+    }
+    chatEl.scrollTop = chatEl.scrollHeight;
+  } catch (e) {}
+}
+
+async function sendCoach() {
+  const inp = el('coach-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  const chatEl = el('coach-chat');
+  const userBubble = document.createElement('div');
+  userBubble.className = 'coach-bubble user';
+  userBubble.innerHTML = `<div class="coach-avatar">👤</div><div class="coach-msg">${escapeHtml(msg)}</div>`;
+  chatEl.appendChild(userBubble);
+  const typingBubble = document.createElement('div');
+  typingBubble.className = 'coach-bubble';
+  typingBubble.innerHTML = `<div class="coach-avatar">🤖</div><div class="coach-msg"><div class="qt-typing"><div class="qt-dot"></div><div class="qt-dot"></div><div class="qt-dot"></div></div></div>`;
+  chatEl.appendChild(typingBubble);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  inp.disabled = true;
+  try {
+    const data = await api('POST', '/api/coach/chat', { message: msg });
+    typingBubble.querySelector('.coach-msg').textContent = data.response;
+    chatEl.scrollTop = chatEl.scrollHeight;
+  } catch (e) {
+    typingBubble.querySelector('.coach-msg').textContent = 'Sorry, I had trouble responding. Try again!';
+  } finally { inp.disabled = false; inp.focus(); }
+}
+
+/* ═══ BOOKMARKS ═══ */
+async function loadBookmarks() {
+  show('bookmarks-loading'); hide('bookmarks-list');
+  try {
+    const data = await api('GET', '/api/bookmarks');
+    const listEl = el('bookmarks-list');
+    if (!data.bookmarks.length) {
+      listEl.innerHTML = '<div class="card text-center" style="padding:40px"><div style="font-size:46px;margin-bottom:12px">📌</div><div class="fw-700 text-lg">No Bookmarks Yet</div></div>';
+    } else {
+      listEl.innerHTML = data.bookmarks.map(b => `
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div class="badge badge-accent">📌 ${escapeHtml(b.chapter)}</div>
+            <div class="badge badge-purple">${escapeHtml(b.difficulty)}</div>
+          </div>
+          <div class="fw-600 mb-8">${escapeHtml(b.question)}</div>
+          <div class="expl-box text-sm">${escapeHtml(b.explanation)}</div>
+          <button class="btn btn-ghost btn-sm mt-8" data-bkid="${b.question_id}">Remove</button>
+        </div>`).join('');
+      listEl.addEventListener('click', async e => {
+        const btn = e.target.closest('[data-bkid]');
+        if (!btn) return;
+        try { await api('DELETE', `/api/bookmarks/${btn.dataset.bkid}`); toast('Bookmark removed', 'info'); loadBookmarks(); }
+        catch (err) { toast(err.message, 'error'); }
+      });
+    }
+    hide('bookmarks-loading');
+    listEl.style.cssText = 'display:flex;flex-direction:column;gap:12px';
+    listEl.classList.remove('hidden');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ ANALYTICS ═══ */
+async function loadAnalytics() {
+  show('analytics-loading'); hide('analytics-content');
+  try {
+    const data = await api('GET', '/api/analytics');
+    el('an-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value">${data.overview.total_attempted}</div><div class="stat-label">Total Attempted</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value">${data.overview.total_correct}</div><div class="stat-label">Correct</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value">${data.overview.overall_accuracy}%</div><div class="stat-label">Accuracy</div></div>
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value">${data.overview.study_streak}</div><div class="stat-label">Day Streak</div></div>`;
+    el('an-chapters').innerHTML = data.chapter_performance.map(c => `
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-size:12px"><span class="fw-600">${escapeHtml(c.chapter)}</span><span>${c.accuracy}%</span></div>
+        <div class="progress-bar"><div class="progress-fill ${c.accuracy >= 75 ? 'pf-green' : c.accuracy >= 50 ? 'pf-gold' : 'pf-red'}" style="width:${c.accuracy}%"></div></div>
+        <div class="text-xs text-muted mt-4">${c.total_attempts} attempts</div>
+      </div>`).join('') || '<div class="text-muted text-sm">No data yet.</div>';
+    el('an-diff').innerHTML = data.difficulty_breakdown.map(d => `
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-size:12px"><span class="fw-600">${escapeHtml(d.difficulty)}</span><span>${d.accuracy}%</span></div>
+        <div class="progress-bar"><div class="progress-fill ${d.difficulty === 'easy' ? 'pf-green' : d.difficulty === 'hard' ? 'pf-red' : 'pf-gold'}" style="width:${d.accuracy}%"></div></div>
+        <div class="text-xs text-muted mt-4">${d.total} questions</div>
+      </div>`).join('') || '<div class="text-muted text-sm">No data yet.</div>';
+    el('an-weak').innerHTML = data.top_weak_questions.map(w => `
+      <div class="card" style="padding:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div class="badge badge-red">Wrong ${w.wrong_count}×</div>
+          <div class="text-xs text-muted">${escapeHtml(w.chapter)}</div>
+        </div>
+        <div class="text-sm fw-600">${escapeHtml(w.question)}</div>
+      </div>`).join('') || '<div class="text-muted text-sm">No weak questions yet!</div>';
+    hide('analytics-loading');
+    el('analytics-content').classList.remove('hidden');
+  } catch (e) { toast(e.message, 'error'); hide('analytics-loading'); }
+}
+
+/* ═══ LEADERBOARD ═══ */
+async function loadLeaderboard() {
+  show('lb-loading'); hide('lb-content');
+  try {
+    const data = await api('GET', '/api/leaderboard');
+    el('lb-content').innerHTML = data.leaderboard.map(r => `
+      <div class="lb-row ${r.is_me ? 'me' : ''}">
+        <div class="lb-rank" style="color:${r.rank === 1 ? 'var(--gold)' : r.rank === 2 ? '#c0c0c0' : r.rank === 3 ? '#cd7f32' : 'var(--text2)'}">
+          ${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank}
+        </div>
+        <div class="avatar" style="background:${r.avatar_color || 'var(--accent)'};width:26px;height:26px;font-size:10px">${r.name[0]}</div>
+        <div class="lb-name">${escapeHtml(r.name)} ${r.is_me ? '<span class="badge badge-accent" style="font-size:9px">You</span>' : ''}</div>
+        <div class="text-muted text-sm">Lv${r.level} · ${r.accuracy}%</div>
+        <div class="lb-xp">⚡ ${r.xp} XP</div>
+      </div>`).join('');
+    hide('lb-loading');
+    el('lb-content').classList.remove('hidden');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ PROFILE ═══ */
+async function loadProfile() {
+  try {
+    const prof = await api('GET', '/api/user/profile');
+    currentUser = { ...currentUser, ...prof };
+    el('prof-name').textContent = prof.name;
+    el('prof-email').textContent = prof.email;
+    el('prof-level').textContent = `Level ${prof.level} · ${prof.xp} XP`;
+    el('prof-name-input').value = prof.name;
+    el('prof-bio').value = prof.bio || '';
+    el('prof-color').value = prof.avatar_color || '#3b82f6';
+    el('prof-reminders').checked = prof.receive_reminders;
+    const av = el('prof-avatar');
+    av.textContent = prof.name[0].toUpperCase();
+    av.style.background = prof.avatar_color || 'linear-gradient(135deg,#3b82f6,#8b5cf6)';
+    el('prof-stats').innerHTML = [
+      ['Total Attempted', prof.stats.total_attempted],
+      ['Accuracy', prof.stats.overall_accuracy + '%'],
+      ['Study Streak', prof.stats.study_streak + ' 🔥'],
+      ['Chapters Done', prof.stats.chapters_completed],
+      ['Interviews', prof.stats.interview_sessions],
+      ['Best Global Rank', prof.stats.best_global_rank || '—'],
+    ].map(([label, val]) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">
+        <span class="text-muted">${label}</span><span class="fw-700">${val}</span>
+      </div>`).join('');
+    el('prof-achs').innerHTML = prof.achievements.length
+      ? prof.achievements.slice().reverse().map(a => `
+        <div class="ach-card">
+          <div class="ach-icon">${a.icon}</div>
+          <div><div class="ach-name">${escapeHtml(a.name)}</div><div class="ach-desc">${escapeHtml(a.desc)}</div></div>
+          <div class="ach-xp">+${a.xp} XP</div>
+        </div>`).join('')
+      : '<div class="text-muted text-sm">No achievements yet. Keep studying!</div>';
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function saveProfile() {
+  try {
+    await api('PUT', '/api/user/profile', {
+      name: el('prof-name-input').value.trim(),
+      bio: el('prof-bio').value.trim(),
+      avatar_color: el('prof-color').value,
+      receive_reminders: el('prof-reminders').checked,
+    });
+    toast('Profile saved!', 'success');
+    loadProfile(); updateSidebar();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ MOOD ═══ */
+function setupMoodButtons() {
+  document.querySelectorAll('[data-mood]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.selectedMood = parseInt(btn.dataset.mood);
+      document.querySelectorAll('[data-mood]').forEach(b => b.classList.toggle('selected', b === btn));
+    });
+  });
+  document.querySelectorAll('[data-energy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.selectedEnergy = parseInt(btn.dataset.energy);
+      document.querySelectorAll('[data-energy]').forEach(b => b.classList.toggle('selected', b === btn));
+    });
+  });
+}
+
+async function submitMood() {
+  if (!state.selectedMood || !state.selectedEnergy) return toast('Select mood and energy', 'error');
+  try {
+    await api('POST', '/api/mood/checkin', { mood: state.selectedMood, energy: state.selectedEnergy, note: el('mood-note').value.trim() });
+    toast('Mood logged!', 'success');
+    state.selectedMood = 0; state.selectedEnergy = 0;
+    document.querySelectorAll('.mood-btn').forEach(e => e.classList.remove('selected'));
+    el('mood-note').value = '';
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ═══ WIRE UP ALL BUTTONS — no inline onclick ═══ */
+function wireButtons() {
+  // Auth
+  el('login-btn').addEventListener('click', doLogin);
+  el('register-btn').addEventListener('click', doRegister);
+  el('goto-register').addEventListener('click', () => { show('register-form'); hide('login-form'); });
+  el('goto-login').addEventListener('click', () => { show('login-form'); hide('register-form'); });
+  el('setup-btn').addEventListener('click', doSetup);
+  el('logout-btn').addEventListener('click', doLogout);
+
+  // Sidebar nav
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => gotoPage(item.dataset.page));
+  });
+  el('sidebar-toggle').addEventListener('click', toggleSidebar);
+  el('sidebar-backdrop').addEventListener('click', closeSidebar);
+  el('sb-avatar').addEventListener('click', () => gotoPage('profile'));
+
+  // Dashboard shortcuts
+  document.querySelectorAll('[data-goto]').forEach(btn => {
+    btn.addEventListener('click', () => gotoPage(btn.dataset.goto));
+  });
+
+  // Daily test
+  el('dt-submit-btn').addEventListener('click', submitDailyTest);
+  el('dt-new-btn').addEventListener('click', loadDailyTest);
+
+  // Chapters
+  el('refresh-chapters-btn').addEventListener('click', loadChapters);
+  el('close-sub-btn').addEventListener('click', closeSubPanel);
+  el('start-chapter-exam-btn').addEventListener('click', startChapterExam);
+
+  // Weak session
+  el('start-weak-btn').addEventListener('click', loadWeakSession);
+  el('ws-submit-btn').addEventListener('click', submitWeakSession);
+  el('ws-retry-btn').addEventListener('click', loadWeakSession);
+
+  // Dynamic
+  el('start-dynamic-btn').addEventListener('click', startDynamic);
+  el('stop-dynamic-btn').addEventListener('click', stopDynamic);
+  el('dyn-new-btn').addEventListener('click', () => { show('dyn-start'); hide('dyn-results'); });
+
+  // Interview
+  el('iv-start-btn').addEventListener('click', startInterview);
+  el('iv-submit-btn').addEventListener('click', submitInterviewAnswer);
+  el('iv-next-btn').addEventListener('click', showNextIVQuestion);
+  el('iv-end-btn').addEventListener('click', endInterview);
+  el('iv-new-btn').addEventListener('click', resetInterview);
+
+  // Challenge
+  el('dc-submit-btn').addEventListener('click', submitChallenge);
+
+  // Global
+  el('refresh-global-btn').addEventListener('click', loadGlobalTests);
+
+  // Coach
+  el('coach-send-btn').addEventListener('click', sendCoach);
+  el('coach-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendCoach(); });
+
+  // Bookmarks
+  el('refresh-bookmarks-btn').addEventListener('click', loadBookmarks);
+
+  // Profile
+  el('save-profile-btn').addEventListener('click', saveProfile);
+  el('submit-mood-btn').addEventListener('click', submitMood);
+
+  // Exam overlay
+  el('end-exam-btn').addEventListener('click', () => { if (confirm('End exam early and see results?')) submitExam(false); });
+  el('exam-prev-btn').addEventListener('click', () => { const next = state.examCurrentQ - 1; if (next >= 0) renderExamQ(next); });
+  el('exam-next-btn').addEventListener('click', () => {
+    const next = state.examCurrentQ + 1;
+    if (next < state.examQuestions.length) renderExamQ(next);
+  });
+  el('submit-exam-btn').addEventListener('click', () => submitExam(false));
+
+  // Exam result modal
+  el('erm-close-btn').addEventListener('click', () => { closeModal('exam-result-modal'); closeExam(); });
+  el('erm-review-btn').addEventListener('click', reviewExam);
+
+  // Achievement modal
+  el('ach-ok-btn').addEventListener('click', () => closeModal('ach-modal'));
+
+  // Mood buttons
+  setupMoodButtons();
+}
+
+/* ═══ INIT ═══ */
+(async function init() {
+  wireButtons();
+  if (!token) return;
+  try {
+    const prof = await api('GET', '/api/user/profile');
+    currentUser = prof;
+    el('auth-container').classList.remove('active');
+    if (!prof.setup_done) el('setup-container').classList.add('active');
+    else launchApp();
+  } catch (e) {
+    localStorage.removeItem('examai_token');
+    token = '';
+  }
+})();
+</script>
+</body>
+</html>
